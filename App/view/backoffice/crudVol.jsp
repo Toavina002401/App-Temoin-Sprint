@@ -1,15 +1,27 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
     String baseUrl = (String) request.getSession().getAttribute("baseUrl");
+    Boolean authentifier = (Boolean) request.getSession().getAttribute("authUser");
+    if (authentifier == null || !authentifier) {
+        response.sendRedirect(request.getContextPath() + "/backOffice"); 
+    }
 %>
 <!DOCTYPE html>
 <html :class="{ 'theme-dark': dark }" x-data="data()" lang="en" class="theme-dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" type="image/x-icon" href="<%= baseUrl %>/assets/frontOffice/assets/img/favicon.ico">
     <title>Crud vol</title>
     <link rel="stylesheet" href="<%= baseUrl %>/assets/backOffice/public/assets/css/tailwind.output.css" />
     <script src="<%= baseUrl %>/assets/backOffice/public/assets/js/init-alpine.js"></script>
+    <style>
+      #styleDeconnexion{
+        position: fixed;
+        top: 95vh;
+        left: 1vw;
+      }
+    </style>
   </head>
   <body>
     <div
@@ -126,6 +138,28 @@
               >
               CRUD vol
               <span class="ml-2" aria-hidden="true">+</span>
+            </a>
+          </div>
+          <div id="styleDeconnexion">
+            <a
+              class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+              href="<%= baseUrl %>/deconnexion"
+            >
+              <svg
+                class="w-4 h-4 mr-3"
+                aria-hidden="true"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                ></path>
+              </svg>
+              <span>Deconnexion</span>
             </a>
           </div>
         </div>

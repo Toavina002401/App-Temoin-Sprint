@@ -1,6 +1,25 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
     String baseUrl = (String) request.getSession().getAttribute("baseUrl");
+    Integer logsAuth = (Integer) request.getAttribute("logsAuth");
+    String pseudo = (String) request.getAttribute("logsPseudo");
+    String pwd = (String) request.getAttribute("logspwd");
+    String pseudoClass = "block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input";
+    String pwdClass = "block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input";
+    String pseudoErrorMessage = "";
+    String pwdErrorMessage = "";
+
+    // For pseudo
+    if (logsAuth != null && logsAuth == -2) {
+        pseudoClass = "block w-full mt-1 text-sm border-red-600 dark:text-gray-300 dark:bg-gray-700 focus:border-red-400 focus:outline-none focus:shadow-outline-red form-input";
+        pseudoErrorMessage = "<span class='text-xs text-red-600 dark:text-red-400'>Le pseudo saisi n'existe pas. Veuillez vérifier et réessayer..</span>";
+    }
+
+    // For password
+    if (logsAuth != null && logsAuth == -1) {
+        pwdClass = "block w-full mt-1 text-sm border-red-600 dark:text-gray-300 dark:bg-gray-700 focus:border-red-400 focus:outline-none focus:shadow-outline-red form-input";
+        pwdErrorMessage = "<span class='text-xs text-red-600 dark:text-red-400'>Votre mot de passe est invalide. Veuillez réessayer..</span>";
+    }
 %>
 
 <!DOCTYPE html>
@@ -8,6 +27,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" type="image/x-icon" href="<%= baseUrl %>/assets/frontOffice/assets/img/favicon.ico">
     <title>Login - Go Trip</title>
     <link rel="stylesheet" href="<%= baseUrl %>/assets/backOffice/public/assets/css/tailwind.output.css" />
     <script src="<%= baseUrl %>/assets/backOffice/public/assets/js/init-alpine.js"></script>
@@ -33,7 +53,7 @@
             />
           </div>
           <div class="flex items-center justify-center p-6 sm:p-12 md:w-1/2">
-            <div class="w-full">
+            <form class="w-full" method="post" action="<%= baseUrl %>/login">
               <h1
                 class="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-200"
               >
@@ -41,30 +61,23 @@
               </h1>
               <label class="block text-sm">
                 <span class="text-gray-700 dark:text-gray-400">Pseudo</span>
-                <input
-                  class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
-                  placeholder="Jane Doe"
-                />
+                <input class="<%= pseudoClass %>" placeholder="Jane Doe" name="pseudo" value="<%= pseudo != null ? pseudo : "" %>"/>
+                <%= pseudoErrorMessage %>
               </label>
               <label class="block mt-4 text-sm">
                 <span class="text-gray-700 dark:text-gray-400">Password</span>
-                <input
-                  class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
-                  placeholder="***************"
-                  type="password"
-                />
+                <input class="<%= pwdClass %>" placeholder="***************" type="password" name="pwd" value="<%= pwd != null ? pwd : "" %>"/>
+                <%= pwdErrorMessage %>
               </label>
 
               <!-- You should use a button here, as the anchor is only used for the example  -->
-              <a
+              <input
                 class="block w-full px-4 py-2 mt-4 text-sm font-medium leading-5 text-center text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
-                href="../index.html"
+                type="submit"
+                value="Se connecter"
               >
-                Log in
-              </a>
-
               <hr class="my-8" />
-            </div>
+            </form>
           </div>
         </div>
       </div>
