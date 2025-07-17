@@ -82,4 +82,15 @@ public class BackOfficeController {
         }
         return mv;
     }
+
+    @Get
+    @Url("/backOffice/delete")
+    public ModelView deleteVol(@Param("id") String id)throws Exception {
+        ModelView mv = new ModelView("/view/backoffice/crudVol.jsp");
+        Vol.delete(Integer.parseInt(id));
+        session.add("baseUrl", baseUrl);
+        Vector<Vol> liste = Vol.getAll();
+        mv.addObject("listeVols", liste);
+        return mv;
+    }
 }

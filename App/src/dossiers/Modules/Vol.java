@@ -180,6 +180,22 @@ public class Vol {
         return valiny;
     }
 
+    public static void delete(int idVol) throws Exception {
+        try (
+            Connection conn = ConnexionPool.connecter();
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM Vol WHERE id = ?")
+        ) {
+            stmt.setInt(1, idVol);
+            int affectedRows = stmt.executeUpdate();
+            System.out.println("Nombre de lignes affectées : " + affectedRows + " pour le suppresion du vol id=" + idVol);
+
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new Exception("Erreur lors de la suppression du vol : " + e.getMessage());
+        }
+    }
+
     public static Vector<Vol> getAll() throws Exception {
         Vector<Vol> valiny = new Vector<>();
         

@@ -198,7 +198,7 @@
                                             <div class="col-12 col-md-6 mt-3">
                                                 <label for="departureAirport" class="form-label">Aéroport de départ</label>
                                                 <select class="form-select scroolable" id="departureAirport" name="aeroportDepart">
-                                                    <option value="">Sélectionnez un aéroport</option>
+                                                    <option value="">Tous les aéroports</option>
                                                     <% for(int i=0;i<listeAeroport.size();i++) { %>
                                                         <option value="<%= listeAeroport.elementAt(i).getId() %>" <%= (selectedAeroportDepart != null && selectedAeroportDepart.equals(String.valueOf(listeAeroport.elementAt(i).getId()))) ? "selected" : "" %>>
                                                             <%= listeAeroport.elementAt(i).getVille() %> (<%= listeAeroport.elementAt(i).getCode_iata() %>)
@@ -210,7 +210,7 @@
                                             <div class="col-md-6 mt-3">
                                                 <label for="arrivalAirport" class="form-label">Aéroport d'arrivée</label>
                                                 <select class="form-select" id="arrivalAirport" name="aeroportArrive">
-                                                    <option value="">Sélectionnez un aéroport</option>
+                                                    <option value="">Tous les aéroports</option>
                                                     <% for(int i=0;i<listeAeroport.size();i++) { %>
                                                         <option value="<%= listeAeroport.elementAt(i).getId() %>" 
                                                             <%= (selectedAeroportArrive != null && selectedAeroportArrive.equals(String.valueOf(listeAeroport.elementAt(i).getId()))) ? "selected" : "" %>>

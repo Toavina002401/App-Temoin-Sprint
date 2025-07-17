@@ -29,6 +29,7 @@
     <title>Recherche multi critere d'un vol</title>
     <link rel="stylesheet" href="<%= baseUrl %>/assets/backOffice/public/assets/css/tailwind.output.css" />
     <script src="<%= baseUrl %>/assets/backOffice/public/assets/js/init-alpine.js"></script>
+    <script src="<%= baseUrl %>/assets/js/sweetAlert.min.js"></script>
     <style>
       #styleDeconnexion{
         position: fixed;
@@ -268,7 +269,7 @@
                 <label class="block mt-4 text-sm">
                   <span class="text-gray-700 dark:text-gray-400">Aéroport de départ</span>
                   <select class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray" name="aeroportDepart">
-                    <option value="">Sélectionnez un aéroport</option>
+                    <option value="">Tous les aéroports</option>
                     <% for(int i=0;i<listeAeroport.size();i++) { %>
                       <option value="<%= listeAeroport.elementAt(i).getId() %>" <%= (selectedAeroportDepart != null && selectedAeroportDepart.equals(String.valueOf(listeAeroport.elementAt(i).getId()))) ? "selected" : "" %>>
                         <%= listeAeroport.elementAt(i).getVille() %> (<%= listeAeroport.elementAt(i).getCode_iata() %>)
@@ -280,7 +281,7 @@
                 <label class="block mt-4 text-sm">
                   <span class="text-gray-700 dark:text-gray-400">Aéroport d'arrivée</span>
                   <select class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray" name="aeroportArrive">
-                    <option value="">Sélectionnez un aéroport</option>
+                    <option value="">Tous les aéroports</option>
                     <% for(int i=0;i<listeAeroport.size();i++) { %>
                       <option value="<%= listeAeroport.elementAt(i).getId() %>" 
                         <%= (selectedAeroportArrive != null && selectedAeroportArrive.equals(String.valueOf(listeAeroport.elementAt(i).getId()))) ? "selected" : "" %>>

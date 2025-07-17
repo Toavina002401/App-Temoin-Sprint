@@ -16,6 +16,7 @@
     <title>Crud vol</title>
     <link rel="stylesheet" href="<%= baseUrl %>/assets/backOffice/public/assets/css/tailwind.output.css" />
     <script src="<%= baseUrl %>/assets/backOffice/public/assets/js/init-alpine.js"></script>
+    <script src="<%= baseUrl %>/assets/js/sweetAlert.min.js"></script>
     <style>
       #styleDeconnexion{
         position: fixed;
@@ -277,12 +278,12 @@
               '<span><strong>Délai réservation :</strong> ' + vol.delaiReservation + 'h</span>' +
               '<span><strong>Délai annulation :</strong> ' + vol.delaiAnnulation + 'h</span>' +
               '<div class="flex space-x-2 crud-perso">'+
-                '<a class="text-blue-500 hover:text-blue-700" style="margin-right: 15px;" href="">'+
+                '<a class="text-blue-500 hover:text-blue-700" style="margin-right: 15px;cursor:pointer;" onclick="updateVol('+ vol.idVol+')">'+
                   '<svg xmlns="http://www.w3.org/2000/svg" fill="#2563eb" viewBox="0 0 24 24" stroke="none" class="h-5 w-5">'+
                     '<path d="M4 21h4l10.707-10.707a1 1 0 000-1.414L14.121 5.293a1 1 0 00-1.414 0L4 14v4zm16.707-13.707a1 1 0 010 1.414l-1.414 1.414-2.121-2.121 1.414-1.414a1 1 0 011.414 0l.707.707z"/>'+
                   '</svg>'+
                 '</a>'+
-                '<a class="text-red-500 hover:text-red-700" href="">'+
+                '<a class="text-red-500 hover:text-red-700" style="cursor:pointer;" onclick="deleteVol('+ vol.idVol+')">'+
                   '<svg xmlns="http://www.w3.org/2000/svg" fill="#dc2626" viewBox="0 0 24 24" stroke="none" class="h-5 w-5">'+
                     '<path d="M6 7V6a2 2 0 012-2h8a2 2 0 012 2v1h3a1 1 0 110 2h-1v11a2 2 0 01-2 2H6a2 2 0 01-2-2V9H3a1 1 0 110-2h3zm2 2v10h8V9H8zm2 2h2v6h-2v-6zm4 0h2v6h-2v-6z"/>'+
                   '</svg>'+
@@ -300,6 +301,7 @@
         if (vols != null) {
           for (int i = 0; i < vols.size(); i++) {
             Vol vol = vols.get(i);
+            int idVol = vol.getId();
             String departVille = vol.getAeroport_depart().getVille();
             String departCode = vol.getAeroport_depart().getCode_iata();
             String arriveeVille = vol.getAeroport_arrivee().getVille();
@@ -321,7 +323,8 @@
         avionModele: "<%= avionModele %>",
         avionCode: "<%= avionCode %>",
         delaiReservation: <%= delaiReservation %>,
-        delaiAnnulation: <%= delaiAnnulation %>
+        delaiAnnulation: <%= delaiAnnulation %>,
+        idVol: "<%= idVol %>"
       }<%= (i < vols.size() - 1) ? "," : "" %>
       <% 
           }
@@ -329,6 +332,33 @@
       %>
       ];
       afficherVolsEnCards(volsExemple);
+
+
+      function deleteVol(id){
+        swal({
+          title: "Suppression du vol ?",
+          text: "Cette action est irréversible.",
+          icon: "warning",
+          buttons: ["Annuler", "Oui, supprimer"],
+          dangerMode: true,
+        }).then((willDelete) => {
+          if (willDelete) {
+            swal("Supression confirmée avec succès !", {
+              icon: "success",
+              buttons: false
+            });
+
+            setTimeout(function () {
+              window.location.href = "<%= baseUrl %>/backOffice/delete?id="+id;
+            }, 1500);
+          }
+        });
+      }
+
+      function updateVol(id){
+        console.log(id);
+      }
+
     </script>
   </body>
 </html>
