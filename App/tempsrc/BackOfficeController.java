@@ -79,6 +79,44 @@ public class BackOfficeController {
         if (vol.valid()) {
             mv.addObject("valider", true);
             mv.addObject("listeVols", vol.save());
+            System.out.println("creation");
+        }
+        return mv;
+    }
+
+    @Get
+    @Url("/backOffice/formulaireUpdateVol")
+    public ModelView formulaireUpdate(@Param("id") String id)throws Exception {
+        ModelView mv = new ModelView("/view/backoffice/update.jsp");
+        Vector<Aeroport> listeAeroport = Aeroport.getAll();
+        Vector<Avion> listeAvion = Avion.getAll();
+        Vol ancien = Vol.getById(Integer.parseInt(id));
+        session.add("baseUrl", baseUrl);
+        mv.addObject("listeAeroport", listeAeroport);
+        mv.addObject("listeAvion", listeAvion);
+        mv.addObject("ancienVol", ancien);
+        mv.addObject("idVolUpdate", id);
+        return mv;
+    }
+
+    @Get
+    @Url("/backOffice/updatevol")
+    public ModelView update(@Param("vol") Vol vol,@Param("id") String id)throws Exception {
+        String referer = "/backOffice/formulaireUpdateVol?id="+id;
+        ModelView mv = new ModelView("/view/backoffice/update.jsp");
+        Vector<Aeroport> listeAeroport = Aeroport.getAll();
+        Vector<Avion> listeAvion = Avion.getAll();
+        Vol ancien = Vol.getById(Integer.parseInt(id));
+        session.add("baseUrl", baseUrl);
+        mv.addObject("listeAeroport", listeAeroport);
+        mv.addObject("listeAvion", listeAvion);
+        mv.addObject("referer", referer);
+        mv.addObject("ancienVol", ancien);
+        mv.addObject("idVolUpdate", id);
+        if (vol.valid()) {
+            mv.addObject("valider", true);
+            mv.addObject("listeVols", vol.update(Integer.parseInt(id)));
+            System.out.println("modification");
         }
         return mv;
     }

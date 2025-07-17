@@ -149,8 +149,10 @@ public class Vol {
                 Statement.RETURN_GENERATED_KEYS
             )
         ) {
-            stmt.setTimestamp(1, Timestamp.valueOf(this.date_depart + " 00:00:00"));
-            stmt.setTimestamp(2, Timestamp.valueOf(this.date_arrivee + " 00:00:00"));
+            String departFormate = this.date_depart.replace("T", " ") + ":00";
+            String arriveeFormate = this.date_arrivee.replace("T", " ") + ":00";
+            stmt.setTimestamp(1, Timestamp.valueOf(departFormate));
+            stmt.setTimestamp(2, Timestamp.valueOf(arriveeFormate));
             stmt.setInt(3, this.delai_reservation_heures);
             stmt.setInt(4, this.delai_annulation_heures);
             stmt.setInt(5, this.id_aeroport_arrivee);
@@ -180,6 +182,41 @@ public class Vol {
         return valiny;
     }
 
+    public Vector<Vol> update(int id) throws Exception {
+        Vector<Vol> valiny = new Vector<>();
+        try (
+            Connection conn = ConnexionPool.connecter();
+            PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE Vol SET date_depart = ?, date_arrivee = ?, delai_reservation_heures = ?, delai_annulation_heures = ?, aeroport_arrivee_id = ?, aeroport_depart_id = ?, id_avion = ? WHERE id = ?"
+            )
+        ) {
+            String departFormate = this.date_depart.replace("T", " ") + ":00";
+            String arriveeFormate = this.date_arrivee.replace("T", " ") + ":00";
+            stmt.setTimestamp(1, Timestamp.valueOf(departFormate));
+            stmt.setTimestamp(2, Timestamp.valueOf(arriveeFormate));
+            stmt.setInt(3, this.delai_reservation_heures);
+            stmt.setInt(4, this.delai_annulation_heures);
+            stmt.setInt(5, this.id_aeroport_arrivee);
+            stmt.setInt(6, this.id_aeroport_depart);
+            stmt.setInt(7, this.id_avion);
+            stmt.setInt(8, id);
+
+            int affectedRows = stmt.executeUpdate();
+            System.out.println("Nombre de row affecter pour le modifiction est "+ affectedRows);
+
+            // Mettre à jour les objets liés
+            this.aeroport_arrivee = Aeroport.getById(this.id_aeroport_arrivee);
+            this.aeroport_depart = Aeroport.getById(this.id_aeroport_depart);
+            this.avion = Avion.getById(this.id_avion);
+            valiny.add(this);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new Exception("Erreur lors de la mise à jour du vol : " + e.getMessage());
+        }
+        return valiny;
+    }
+
     public static void delete(int idVol) throws Exception {
         try (
             Connection conn = ConnexionPool.connecter();
@@ -194,6 +231,44 @@ public class Vol {
             System.out.println(e.getMessage());
             throw new Exception("Erreur lors de la suppression du vol : " + e.getMessage());
         }
+    }
+
+    public static Vol getById(int idVol) throws Exception {
+        Vol vol = null;
+
+        String query = "SELECT * FROM Vol WHERE id = ?";
+
+        try (
+            Connection conn = ConnexionPool.connecter();
+            PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setInt(1, idVol);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    vol = new Vol();
+                    vol.id = rs.getInt("id");
+                    vol.date_depart = rs.getString("date_depart");
+                    vol.date_arrivee = rs.getString("date_arrivee");
+                    vol.delai_reservation_heures = rs.getInt("delai_reservation_heures");
+                    vol.delai_annulation_heures = rs.getInt("delai_annulation_heures");
+                    vol.id_aeroport_arrivee = rs.getInt("aeroport_arrivee_id");
+                    vol.id_aeroport_depart = rs.getInt("aeroport_depart_id");
+                    vol.id_avion = rs.getInt("id_avion");
+
+                    // Charger les objets liés
+                    vol.aeroport_arrivee = Aeroport.getById(vol.id_aeroport_arrivee);
+                    vol.aeroport_depart = Aeroport.getById(vol.id_aeroport_depart);
+                    vol.avion = Avion.getById(vol.id_avion);
+                } else {
+                    throw new Exception("Aucun vol trouvé avec l'ID : " + idVol);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new Exception("Erreur lors de la récupération du vol : " + e.getMessage());
+        }
+
+        return vol;
     }
 
     public static Vector<Vol> getAll() throws Exception {

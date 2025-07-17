@@ -360,7 +360,7 @@
                 <div class="flex-perso">
                     <label class="block text-sm">
                       <span class="text-gray-700 dark:text-gray-400">Date de départ</span>
-                      <input class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input" type="date" name="vol.date_depart" value="<%=pdDateDepart %>"/>
+                      <input class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input" type="datetime-local" name="vol.date_depart" value="<%=pdDateDepart %>"/>
                       <% if (erreursDateDepart != null && !erreursDateDepart.isEmpty()) { %>
                         <span class="text-xs text-red-600 dark:text-red-400">
                           <% for (String erreur : erreursDateDepart) { %>
@@ -371,7 +371,7 @@
                     </label>
                     <label class="block text-sm">
                       <span class="text-gray-700 dark:text-gray-400">Date d'arrivée</span>
-                      <input class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input" type="date" name="vol.date_arrivee" value="<%=pdDateArrivee %>"/>
+                      <input class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input" type="datetime-local" name="vol.date_arrivee" value="<%=pdDateArrivee %>"/>
                       <% if (erreursDateArrivee != null && !erreursDateArrivee.isEmpty()) { %>
                         <span class="text-xs text-red-600 dark:text-red-400">
                           <% for (String erreur : erreursDateArrivee) { %>

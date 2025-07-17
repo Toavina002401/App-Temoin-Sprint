@@ -356,7 +356,7 @@
       }
 
       function updateVol(id){
-        console.log(id);
+        window.location.href = "<%= baseUrl %>/backOffice/formulaireUpdateVol?id="+id;
       }
 
     </script>

@@ -2,20 +2,22 @@
 <%@ page import="java.util.*,dossiers.Modules.*,java.lang.Boolean" %>
 <%
   String baseUrl = (String) request.getSession().getAttribute("baseUrl");
+  String idVolUpdate = (String) request.getAttribute("idVolUpdate");
   Boolean authentifier = (Boolean) request.getSession().getAttribute("authUser");
   if (authentifier == null || !authentifier) {
     response.sendRedirect(request.getContextPath() + "/backOffice"); 
   }
   Vector<Aeroport> listeAeroport = (Vector<Aeroport>)request.getAttribute("listeAeroport");
   Vector<Avion> listeAvion = (Vector<Avion>)request.getAttribute("listeAvion");
+  Vol ancienVol = (Vol)request.getAttribute("ancienVol");
 
-  String pdDateDepart = "";
-  String pdDateArrivee = ""; 
-  String pdAeroportDepart = "";
-  String pdAeroportArrivee = "";
-  String pdAvion = "";
-  String pdReservation = "";
-  String pdAnnulation = "";
+  String pdDateDepart = ancienVol.getDate_depart();
+  String pdDateArrivee = ancienVol.getDate_arrivee(); 
+  String pdAeroportDepart = String.valueOf(ancienVol.getAeroport_depart().getId());
+  String pdAeroportArrivee = String.valueOf(ancienVol.getAeroport_arrivee().getId());
+  String pdAvion = String.valueOf(ancienVol.getAvion().getId());
+  String pdReservation = String.valueOf(ancienVol.getDelai_reservation_heures());
+  String pdAnnulation = String.valueOf(ancienVol.getDelai_annulation_heures());
 
   // Regrouper les erreurs
   boolean hasErrors = false;
@@ -58,7 +60,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" type="image/x-icon" href="<%= baseUrl %>/assets/frontOffice/assets/img/favicon.ico">
-    <title>Creation vol</title>
+    <title>Modification vol</title>
     <link rel="stylesheet" href="<%= baseUrl %>/assets/backOffice/public/assets/css/tailwind.output.css" />
     <script src="<%= baseUrl %>/assets/backOffice/public/assets/js/init-alpine.js"></script>
     <style>
@@ -339,7 +341,7 @@
       <div id="customModal" class="custom-modal">
         <div class="custom-modal-content">
           <span class="custom-modal-close" id="customModalClose">&times;</span>
-          <h2>Création du vol effectuée avec succès </h2>
+          <h2>Modification du vol effectuée avec succès </h2>
           <div class="vol-cards-container" id="volResultCards">
           </div>
         </div>
@@ -353,10 +355,10 @@
         <main class="h-full overflow-y-auto">
           <div class="container px-6 mx-auto grid">
             <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-                Création vol
+                Modification vol
             </h2>
-            <form class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800" method="get" action="<%= baseUrl %>/backOffice/vol">
-                <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300" style="padding: 14px 26px 10px 35px;">Veuillez compléter tous les champs du formulaire</h4>
+            <form class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800" method="get" action="<%= baseUrl %>/backOffice/updatevol">
+                <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300" style="padding: 14px 26px 10px 35px;">Veuillez modifier les champs que vous souhaitez mettre à jour.</h4>
                 <div class="flex-perso">
                     <label class="block text-sm">
                       <span class="text-gray-700 dark:text-gray-400">Date de départ</span>
@@ -464,9 +466,10 @@
                       <% } %>
                     </label>
                 </div>
+                <input type="hidden" name="id" value="<%= idVolUpdate %>">
                 <div class="parent-btn-perso-create">
                     <button class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple btn-perso-create">
-                        Ajouter
+                        Modifier
                     </button>
                 <div>
             </form>
