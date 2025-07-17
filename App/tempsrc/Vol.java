@@ -6,26 +6,43 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Vector;
 
 import controlleur.annotation.AnnotationObject;
+import controlleur.annotation.Range;
 import controlleur.annotation.Required;
 import dossiers.Connection.ConnexionPool;
 
 @AnnotationObject
 public class Vol {
     private int id;
+
     @Required
     private String date_depart;
+
     @Required
     private String date_arrivee;
+
+    @Required
+    @Range(min=1,max =48)
     private int delai_reservation_heures;
+
+    @Required
+    @Range(min=1,max =48)
     private int delai_annulation_heures;
+
     @Required
+    private int id_aeroport_arrivee;
+
+    @Required
+    private int id_aeroport_depart;
+
+    @Required
+    private int id_avion;
+
     private Aeroport aeroport_arrivee;
-    @Required
     private Aeroport aeroport_depart;
-    @Required
     private Avion avion;
 
     
@@ -96,6 +113,73 @@ public class Vol {
         this.avion = avion;
     }
 
+    public boolean valid(){
+        boolean valiny = true;
+        if (this.date_depart == null || this.date_depart.equals("")) {
+            valiny = false;
+        }
+        if (this.date_arrivee == null || this.date_arrivee.equals("")) {
+            valiny = false;
+        }
+        if (this.id_avion == 0 || this.id_avion < 0) {
+            valiny = false;
+        }
+        if (this.id_aeroport_arrivee == 0 || this.id_aeroport_arrivee < 0) {
+            valiny = false;
+        }
+        if (this.id_aeroport_depart == 0 || this.id_aeroport_depart < 0) {
+            valiny = false;
+        }
+        if (this.delai_reservation_heures == 0 || (this.delai_reservation_heures < 1 && this.delai_reservation_heures > 48)) {
+            valiny = false;
+        }
+        if (this.delai_annulation_heures == 0 || (this.delai_annulation_heures < 1 && this.delai_annulation_heures > 48)) {
+            valiny = false;
+        }
+        return valiny;
+    }
+
+    public Vector<Vol> save() throws Exception {
+        Vector<Vol> valiny = new Vector<>();
+        try (
+            Connection conn = ConnexionPool.connecter();
+            PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO Vol (date_depart, date_arrivee, delai_reservation_heures, delai_annulation_heures, aeroport_arrivee_id, aeroport_depart_id, id_avion) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                Statement.RETURN_GENERATED_KEYS
+            )
+        ) {
+            stmt.setTimestamp(1, Timestamp.valueOf(this.date_depart + " 00:00:00"));
+            stmt.setTimestamp(2, Timestamp.valueOf(this.date_arrivee + " 00:00:00"));
+            stmt.setInt(3, this.delai_reservation_heures);
+            stmt.setInt(4, this.delai_annulation_heures);
+            stmt.setInt(5, this.id_aeroport_arrivee);
+            stmt.setInt(6, this.id_aeroport_depart);
+            stmt.setInt(7, this.id_avion);
+
+            stmt.executeUpdate();
+
+            // Récupération de l'ID généré
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    this.id = rs.getInt(1);
+                }
+            }
+
+            // Récupération des objets liés
+            this.aeroport_arrivee = Aeroport.getById(this.id_aeroport_arrivee);
+            this.aeroport_depart = Aeroport.getById(this.id_aeroport_depart);
+            this.avion = Avion.getById(this.id_avion);
+            valiny.add(this);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new Exception("Erreur lors de la sauvegarde du vol : " + e.getMessage());
+        }
+
+        return valiny;
+    }
+
     public static Vector<Vol> getAll() throws Exception {
         Vector<Vol> valiny = new Vector<>();
         
@@ -146,6 +230,7 @@ public class Vol {
                 valiny.add(vol);
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw e;
         }
         return valiny;
@@ -225,6 +310,30 @@ public class Vol {
         }
 
         return vols;
+    }
+
+    public int getId_aeroport_arrivee() {
+        return id_aeroport_arrivee;
+    }
+
+    public void setId_aeroport_arrivee(int id_aeroport_arrivee) {
+        this.id_aeroport_arrivee = id_aeroport_arrivee;
+    }
+
+    public int getId_aeroport_depart() {
+        return id_aeroport_depart;
+    }
+
+    public void setId_aeroport_depart(int id_aeroport_depart) {
+        this.id_aeroport_depart = id_aeroport_depart;
+    }
+
+    public int getId_avion() {
+        return id_avion;
+    }
+
+    public void setId_avion(int id_avion) {
+        this.id_avion = id_avion;
     }
 
 

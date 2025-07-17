@@ -200,8 +200,7 @@
                                                 <select class="form-select scroolable" id="departureAirport" name="aeroportDepart">
                                                     <option value="">Sélectionnez un aéroport</option>
                                                     <% for(int i=0;i<listeAeroport.size();i++) { %>
-                                                        <option value="<%= listeAeroport.elementAt(i).getId() %>" 
-                                                            <%= (selectedAeroportDepart != null && selectedAeroportDepart.equals(listeAeroport.elementAt(i).getId())) ? "selected" : "" %>>
+                                                        <option value="<%= listeAeroport.elementAt(i).getId() %>" <%= (selectedAeroportDepart != null && selectedAeroportDepart.equals(String.valueOf(listeAeroport.elementAt(i).getId()))) ? "selected" : "" %>>
                                                             <%= listeAeroport.elementAt(i).getVille() %> (<%= listeAeroport.elementAt(i).getCode_iata() %>)
                                                         </option>
                                                     <% } %>
@@ -214,7 +213,7 @@
                                                     <option value="">Sélectionnez un aéroport</option>
                                                     <% for(int i=0;i<listeAeroport.size();i++) { %>
                                                         <option value="<%= listeAeroport.elementAt(i).getId() %>" 
-                                                            <%= (selectedAeroportArrive != null && selectedAeroportArrive.equals(listeAeroport.elementAt(i).getId())) ? "selected" : "" %>>
+                                                            <%= (selectedAeroportArrive != null && selectedAeroportArrive.equals(String.valueOf(listeAeroport.elementAt(i).getId()))) ? "selected" : "" %>>
                                                             <%= listeAeroport.elementAt(i).getVille() %> (<%= listeAeroport.elementAt(i).getCode_iata() %>)
                                                         </option>
                                                     <% } %>
@@ -227,7 +226,7 @@
                                                     <option value="">Tous les avions</option>
                                                     <% for(int i=0;i<listeAvion.size();i++) { %>
                                                         <option value="<%= listeAvion.elementAt(i).getId() %>" 
-                                                            <%= (selectedAvion != null && selectedAvion.equals(listeAvion.elementAt(i).getId())) ? "selected" : "" %>>
+                                                            <%= (selectedAvion != null && selectedAvion.equals(String.valueOf(listeAvion.elementAt(i).getId()))) ? "selected" : "" %>>
                                                             <%= listeAvion.elementAt(i).getModele() %> (<%= listeAvion.elementAt(i).getCode_avion() %>)
                                                         </option>
                                                     <% } %>
@@ -240,7 +239,7 @@
                                                     <option value="">Toutes les classes</option>
                                                     <% for(int i=0;i<listeClasse.size();i++) { %>
                                                         <option value="<%= listeClasse.elementAt(i).getId() %>" 
-                                                            <%= (selectedClasse != null && selectedClasse.equals(listeClasse.elementAt(i).getId())) ? "selected" : "" %>>
+                                                            <%= (selectedClasse != null && selectedClasse.equals(String.valueOf(listeClasse.elementAt(i).getId()))) ? "selected" : "" %>>
                                                             <%= listeClasse.elementAt(i).getNom() %>
                                                         </option>
                                                     <% } %>

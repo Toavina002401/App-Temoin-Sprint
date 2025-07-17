@@ -3,6 +3,7 @@ package dossiers.Controlleur;
 import java.util.Vector;
 
 import controlleur.annotation.AnnotationControlleur;
+import controlleur.annotation.Get;
 import controlleur.annotation.Param;
 import controlleur.annotation.Post;
 import controlleur.annotation.Url;
@@ -49,6 +50,36 @@ public class BackOfficeController {
         Vol volObj = new Vol();
         Vector<Vol> resultats = volObj.rechercherVols(idAeroportDepart, idAeroportArrive, idAvion, dateDepart, dateArrive, idClasse);
         mv.addObject("listeVols", resultats);
+        return mv;
+    }
+
+    @Get
+    @Url("/backOffice/formulaireVol")
+    public ModelView formulaireCreate()throws Exception {
+        ModelView mv = new ModelView("/view/backoffice/create.jsp");
+        Vector<Aeroport> listeAeroport = Aeroport.getAll();
+        Vector<Avion> listeAvion = Avion.getAll();
+        session.add("baseUrl", baseUrl);
+        mv.addObject("listeAeroport", listeAeroport);
+        mv.addObject("listeAvion", listeAvion);
+        return mv;
+    }
+
+    @Get
+    @Url("/backOffice/vol")
+    public ModelView create(@Param("vol") Vol vol)throws Exception {
+        String referer = "/backOffice/formulaireVol";
+        ModelView mv = new ModelView("/view/backoffice/create.jsp");
+        Vector<Aeroport> listeAeroport = Aeroport.getAll();
+        Vector<Avion> listeAvion = Avion.getAll();
+        session.add("baseUrl", baseUrl);
+        mv.addObject("listeAeroport", listeAeroport);
+        mv.addObject("listeAvion", listeAvion);
+        mv.addObject("referer", referer);
+        if (vol.valid()) {
+            mv.addObject("valider", true);
+            mv.addObject("listeVols", vol.save());
+        }
         return mv;
     }
 }

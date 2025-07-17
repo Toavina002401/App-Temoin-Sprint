@@ -13,6 +13,7 @@ import dossiers.Modules.Aeroport;
 import dossiers.Modules.Avion;
 import dossiers.Modules.Classe;
 import dossiers.Modules.Utilisateur;
+import dossiers.Modules.Vol;
 
 @AnnotationControlleur
 public class AdminController {
@@ -94,9 +95,11 @@ public class AdminController {
 
     @Get
     @Url("/backOffice/crudVol")
-    public ModelView crudVol() {
+    public ModelView crudVol() throws Exception{
         ModelView mv = new ModelView("/view/backoffice/crudVol.jsp");
         session.add("baseUrl", baseUrl);
+        Vector<Vol> liste = Vol.getAll();
+        mv.addObject("listeVols", liste);
         return mv;
     }
 }
