@@ -143,32 +143,69 @@ public class Vol {
         Vector<Vol> valiny = new Vector<>();
         try (
             Connection conn = ConnexionPool.connecter();
-            PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO Vol (date_depart, date_arrivee, delai_reservation_heures, delai_annulation_heures, aeroport_arrivee_id, aeroport_depart_id, id_avion) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                Statement.RETURN_GENERATED_KEYS
-            )
         ) {
             String departFormate = this.date_depart.replace("T", " ") + ":00";
             String arriveeFormate = this.date_arrivee.replace("T", " ") + ":00";
-            stmt.setTimestamp(1, Timestamp.valueOf(departFormate));
-            stmt.setTimestamp(2, Timestamp.valueOf(arriveeFormate));
-            stmt.setInt(3, this.delai_reservation_heures);
-            stmt.setInt(4, this.delai_annulation_heures);
-            stmt.setInt(5, this.id_aeroport_arrivee);
-            stmt.setInt(6, this.id_aeroport_depart);
-            stmt.setInt(7, this.id_avion);
 
-            stmt.executeUpdate();
+            // Vérification de doublon avec récupération du vol existant
+            String checkSql = "SELECT * FROM Vol WHERE date_depart = ? AND date_arrivee = ? " +
+                            "AND delai_reservation_heures = ? AND delai_annulation_heures = ? " +
+                            "AND aeroport_arrivee_id = ? AND aeroport_depart_id = ? AND id_avion = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setTimestamp(1, Timestamp.valueOf(departFormate));
+                checkStmt.setTimestamp(2, Timestamp.valueOf(arriveeFormate));
+                checkStmt.setInt(3, this.delai_reservation_heures);
+                checkStmt.setInt(4, this.delai_annulation_heures);
+                checkStmt.setInt(5, this.id_aeroport_arrivee);
+                checkStmt.setInt(6, this.id_aeroport_depart);
+                checkStmt.setInt(7, this.id_avion);
 
-            // Récupération de l'ID généré
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                ResultSet rs = checkStmt.executeQuery();
                 if (rs.next()) {
-                    this.id = rs.getInt(1);
+                    // Remplir l'objet Vol existant
+                    Vol volExistant = new Vol();
+                    volExistant.id = rs.getInt("id");
+                    volExistant.date_depart = rs.getTimestamp("date_depart").toString();
+                    volExistant.date_arrivee = rs.getTimestamp("date_arrivee").toString();
+                    volExistant.delai_reservation_heures = rs.getInt("delai_reservation_heures");
+                    volExistant.delai_annulation_heures = rs.getInt("delai_annulation_heures");
+                    volExistant.id_aeroport_arrivee = rs.getInt("aeroport_arrivee_id");
+                    volExistant.id_aeroport_depart = rs.getInt("aeroport_depart_id");
+                    volExistant.id_avion = rs.getInt("id_avion");
+
+                    // Charger les objets liés
+                    volExistant.aeroport_arrivee = Aeroport.getById(volExistant.id_aeroport_arrivee);
+                    volExistant.aeroport_depart = Aeroport.getById(volExistant.id_aeroport_depart);
+                    volExistant.avion = Avion.getById(volExistant.id_avion);
+
+                    valiny.add(volExistant);
+                    return valiny; // retourner directement le vol existant
                 }
             }
 
-            // Récupération des objets liés
+            // Si aucun doublon, insérer
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "INSERT INTO Vol (date_depart, date_arrivee, delai_reservation_heures, delai_annulation_heures, aeroport_arrivee_id, aeroport_depart_id, id_avion) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+
+                stmt.setTimestamp(1, Timestamp.valueOf(departFormate));
+                stmt.setTimestamp(2, Timestamp.valueOf(arriveeFormate));
+                stmt.setInt(3, this.delai_reservation_heures);
+                stmt.setInt(4, this.delai_annulation_heures);
+                stmt.setInt(5, this.id_aeroport_arrivee);
+                stmt.setInt(6, this.id_aeroport_depart);
+                stmt.setInt(7, this.id_avion);
+
+                stmt.executeUpdate();
+
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        this.id = rs.getInt(1);
+                    }
+                }
+            }
+
+            // Charger les objets liés
             this.aeroport_arrivee = Aeroport.getById(this.id_aeroport_arrivee);
             this.aeroport_depart = Aeroport.getById(this.id_aeroport_depart);
             this.avion = Avion.getById(this.id_avion);
@@ -181,6 +218,7 @@ public class Vol {
 
         return valiny;
     }
+
 
     public Vector<Vol> update(int id) throws Exception {
         Vector<Vol> valiny = new Vector<>();

@@ -62,6 +62,7 @@ public class FrontOfficeController {
         Vol volObj = new Vol();
         Vector<Vol> resultats = volObj.rechercherVols(idAeroportDepart, idAeroportArrive, idAvion, dateDepart, dateArrive, idClasse);
         mv.addObject("listeVols", resultats);
+        System.out.println("Recherche Multicritere FrontOffice");
         return mv;
     }
 }

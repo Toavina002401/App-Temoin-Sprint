@@ -25,6 +25,7 @@ public class AdminController {
     public ModelView login() {
         ModelView mv = new ModelView("/view/backoffice/index.jsp");
         session.add("baseUrl", baseUrl);
+        System.out.println("Redirection Backoffice");
         return mv;
     }
 

@@ -50,6 +50,7 @@ public class BackOfficeController {
         Vol volObj = new Vol();
         Vector<Vol> resultats = volObj.rechercherVols(idAeroportDepart, idAeroportArrive, idAvion, dateDepart, dateArrive, idClasse);
         mv.addObject("listeVols", resultats);
+        System.out.println("Recherche Multicritere BackOffice");
         return mv;
     }
 
@@ -129,6 +130,7 @@ public class BackOfficeController {
         session.add("baseUrl", baseUrl);
         Vector<Vol> liste = Vol.getAll();
         mv.addObject("listeVols", liste);
+        System.out.println("suppression");
         return mv;
     }
 }

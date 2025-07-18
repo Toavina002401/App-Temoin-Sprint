@@ -40,7 +40,16 @@ CREATE TABLE Vol(
    PRIMARY KEY(id),
    FOREIGN KEY(aeroport_arrivee_id) REFERENCES Aeroport(id) ON DELETE CASCADE,
    FOREIGN KEY(aeroport_depart_id) REFERENCES Aeroport(id) ON DELETE CASCADE,
-   FOREIGN KEY(id_avion) REFERENCES Avion(id) ON DELETE CASCADE
+   FOREIGN KEY(id_avion) REFERENCES Avion(id) ON DELETE CASCADE,
+   CONSTRAINT unique_vol UNIQUE (
+      date_depart,
+      date_arrivee,
+      aeroport_arrivee_id,
+      aeroport_depart_id,
+      id_avion,
+      delai_reservation_heures,
+      delai_annulation_heures
+   )
 );
 
 CREATE TABLE Promotion(
