@@ -1,9 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.*,dossiers.Modules.*,java.lang.Boolean" %>
 <%
     String baseUrl = (String) request.getSession().getAttribute("baseUrl");
     Boolean authentifier = (Boolean) request.getSession().getAttribute("authUser");
     if (authentifier == null || !authentifier) {
-        response.sendRedirect(request.getContextPath() + "/backOffice"); 
+      response.sendRedirect(request.getContextPath() + "/backOffice"); 
     }
 %>
 <!DOCTYPE html>
@@ -21,6 +22,66 @@
         top: 95vh;
         left: 1vw;
       }
+
+      .vol-cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.4rem;
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 20px 50px;
+      }
+      
+      .vol-card {
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        width: 250px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s ease-in-out;
+      }
+      
+      .vol-card:hover {
+        transform: scale(1.02);
+      }
+      
+      .vol-card-header {
+        background-color: #7E3AF2;
+        color: white;
+        padding: 10px 15px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        font-weight: bold;
+        font-size: 12px;
+      }
+      
+      .vol-card-body {
+        padding: 12px 15px;
+        font-size: 10px;
+        color: #333;
+        line-height: 1.5;
+      }
+      
+      .vol-card-footer {
+        padding: 10px 15px;
+        border-top: 1px solid #ddd;
+        background-color: #f7f7f7;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        font-size: 10px;
+        color: #555;
+      }
+      .vol-card-footer span {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .crud-perso{
+        float: right;
+        margin-top: -30px;
+      }
     </style>
   </head>
   <body>
@@ -29,22 +90,14 @@
       :class="{ 'overflow-hidden': isSideMenuOpen }"
     >
       <!-- Desktop sidebar -->
-      <aside
-        class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0"
-      >
+      <aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
         <div class="py-4 text-gray-500 dark:text-gray-400">
-          <a
-            class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200"
-            href="<%= baseUrl %>/backOffice/home"
-          >
+          <a class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="<%= baseUrl %>/backOffice/home">
             Go Trip
           </a>
           <ul class="mt-6">
             <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold text-gray-800 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-100"
-                href="<%= baseUrl %>/backOffice/home"
-              >
+              <a class="inline-flex items-center w-full text-sm font-semibold text-gray-800 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-100" href="<%= baseUrl %>/backOffice/home">
                 <svg
                   class="w-5 h-5"
                   aria-hidden="true"
@@ -169,23 +222,232 @@
         </div>
       </aside>
 
+
+      <div id="modalBackdrop" class="fixed inset-0 z-30 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center" style="display: none;">
+        <!-- Modal -->
+        <div class="w-full px-6 py-4 overflow-hidden bg-white rounded-t-lg dark:bg-gray-800 sm:rounded-lg sm:m-4 sm:max-w-xl" role="dialog" id="modal">
+          <!-- Remove header if you don't want a close icon. Use modal body to place modal tile. -->
+          <header class="flex justify-end">
+            <button id="closeModalBtn" class="inline-flex items-center justify-center w-6 h-6 text-gray-400 transition-colors duration-150 rounded dark:hover:text-gray-200 hover:text-gray-700" aria-label="close">
+              <svg
+                class="w-4 h-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                role="img"
+                aria-hidden="true"
+              >
+                <path
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                ></path>
+              </svg>
+            </button>
+          </header>
+          <!-- Modal body -->
+          <form class="mt-4 mb-6 perso" method="post" action="<%= baseUrl %>/backOffice/promotions">
+            <input type="hidden" name="idVolProm" id="idVolProm">
+            <!-- Modal title -->
+            <p class="mb-5 text-lg font-semibold text-gray-700 dark:text-gray-300">Ajout d'une promotion</p>
+            <div id="infoDetaille" style="margin: 10px 0px;"></div>
+
+            <label class="block mt-4 text-sm">
+              <span class="text-gray-700 dark:text-gray-400">Type de siège :</span>
+              <select name="idClasse" class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray">
+                <option value="1">Économique</option>
+                <option value="2">Affaires</option>
+                <option value="3">Première</option>
+              </select>
+            </label>
+
+            <div class="mt-5 text-sm text-gray-700 dark:text-gray-400" style="margin-top:15px;">
+              <div class="flex gap-4 w-full">
+                <label class="block text-sm flex-1 pr-2">
+                  <span class="text-gray-700 dark:text-gray-400">Nombre de siège :</span>
+                  <input class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input" name="nbSiege" type="number" min="0" required/>
+                </label>
+                <label class="block text-sm flex-1 pl-2">
+                  <span class="text-gray-700 dark:text-gray-400">Remise en % :</span>
+                  <input class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input" name="remise" type="number" max="100" min="0" step="0.01" required/>
+                </label>
+              </div>
+            </div>
+            <div class="flex ">
+              <p onclick="annuler()" id="annulBtn" class="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400" style="margin-right: 15px;">Annuler</p>
+              <button type="submit" id="ajoutBtn" class="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400">Ajouter</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+
+
       <div class="flex flex-col flex-1 w-full">
         <header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
-          <div
-            class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300"
-          >
+          <div class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300">
           </div>
         </header>
         <main class="h-full overflow-y-auto">
           <div class="container px-6 mx-auto grid">
-            <h2
-              class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200"
-            >
-                Promotion
-            </h2>
+            <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">Configuration promotion</h2>
+            <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800">
+              <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200" style="margin-left: 48px;">Liste des vols en cours de disponibilité :</h2>
+              <div class="vol-cards-container" id="volResultCards"></div>
+            </div>
           </div>
         </main>
       </div>
     </div>
+
+    <script>
+      document.getElementById("closeModalBtn").addEventListener("click", closeModal);
+
+      function closeModal() {
+        const modalBackdrop = document.getElementById("modalBackdrop");
+        modalBackdrop.style.display = "none"; 
+      }
+
+      function annuler() {
+        const modalBackdrop = document.getElementById("modalBackdrop");
+        modalBackdrop.style.display = "none"; 
+      }
+
+      function ajout(vol){
+        const modalBackdrop = document.getElementById("modalBackdrop");
+        modalBackdrop.style.display = "flex";
+        const container = document.getElementById("infoDetaille");
+        const input = document.getElementById("idVolProm");
+        input.value = vol.idVol;
+        container.innerHTML = "";
+        const card = document.createElement("div");
+        card.className = "vol-card";
+
+        card.innerHTML =
+        '<div class="vol-card-header">' +
+            vol.departVille + ' <span style="font-size: 8px;">(' + vol.departCode + ')</span> → ' + vol.arriveeVille + ' <span style="font-size: 8px;">(' + vol.arriveeCode + ')</span>' +
+        '</div>' +
+        '<div class="vol-card-body">' +
+            '<div><strong>Départ :</strong> ' + vol.dateDepart + '</div>' +
+            '<div><strong>Arrivée :</strong> ' + vol.dateArrivee + '</div>' +
+            '<div><strong>Avion :</strong> ' + vol.avionModele + ' (' + vol.avionCode + ')</div>' +
+        '</div>';
+        container.appendChild(card);
+      }
+
+      function afficherVolsEnCards(vols) {
+        const container = document.getElementById("volResultCards");
+        container.innerHTML = "";
+
+        vols.forEach(vol => {
+          const card = document.createElement("div");
+          card.className = "vol-card";
+
+          // Étoile si au moins une promotion
+          const star = vol.promotions && vol.promotions.length > 0 
+            ? ' ⭐' 
+            : '';
+
+          // Liste des promotions
+          let promoHTML = "";
+          if (vol.promotions && vol.promotions.length > 0) {
+            promoHTML += '<div class="promo-list">';
+            vol.promotions.forEach(promo => {
+              promoHTML += 
+                '<div style="font-size: 9px; margin-bottom: 1px;">' +
+                  '<strong>' + promo.idClasse + '</strong> : ' +
+                  promo.pourcentage + '% (' + promo.nbSieges + ' sièges)' +
+                '</div>';
+            });
+            promoHTML += '</div>';
+          }
+
+          card.innerHTML =
+            '<div class="vol-card-header">' +
+              vol.departVille + ' <span style="font-size: 8px;">(' + vol.departCode + ')</span> → ' +
+              vol.arriveeVille + ' <span style="font-size: 8px;">(' + vol.arriveeCode + ')</span>' +
+              ' <span style="font-size: 10px;float: inline-end;">' + star + '</span>' +
+            '</div>' +
+            '<div class="vol-card-body">' +
+              '<div><strong>Départ :</strong> ' + vol.dateDepart + '</div>' +
+              '<div><strong>Arrivée :</strong> ' + vol.dateArrivee + '</div>' +
+              '<div><strong>Avion :</strong> ' + vol.avionModele + ' (' + vol.avionCode + ')</div>' +
+            '</div>' +
+            '<div class="vol-card-footer">' +
+              '<span><strong>Ajouter une promotion </strong></span>' +
+              '<div class="flex space-x-2 crud-perso">'+
+                '<a class="text-blue-500 hover:text-green-600" style="margin-right: 15px;padding-top: 5px;cursor:pointer;" onclick=\'ajout(' + JSON.stringify(vol) + ')\'>'+
+                  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="25" height="25">'+
+                    '<path d="M12 5v14M5 12h14" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+
+                  '</svg>'+
+                '</a>'+
+              '</div>' +
+              promoHTML +
+            '</div>';
+
+          container.appendChild(card);
+        });
+      }
+
+
+      const volsExemple = [
+      <% 
+        Vector<Vol> vols = (Vector<Vol>) request.getAttribute("listeVols");
+        Vector<Vector<Promotion>> lesPromos = (Vector<Vector<Promotion>>) request.getAttribute("lesPromos");
+        if (vols != null) {
+          for (int i = 0; i < vols.size(); i++) {
+            Vector<Promotion> tempsPromo = lesPromos.elementAt(i);
+            Vol vol = vols.get(i);
+            int idVol = vol.getId();
+            String departVille = vol.getAeroport_depart().getVille();
+            String departCode = vol.getAeroport_depart().getCode_iata();
+            String arriveeVille = vol.getAeroport_arrivee().getVille();
+            String arriveeCode = vol.getAeroport_arrivee().getCode_iata();
+            String dateDepart = vol.getDate_depart();
+            String dateArrivee = vol.getDate_arrivee();
+            String avionModele = vol.getAvion().getModele();
+            String avionCode = vol.getAvion().getCode_avion();
+            int delaiReservation = vol.getDelai_reservation_heures();
+            int delaiAnnulation = vol.getDelai_annulation_heures();
+      %>
+      {
+        departVille: "<%= departVille %>",
+        departCode: "<%= departCode %>",
+        arriveeVille: "<%= arriveeVille %>",
+        arriveeCode: "<%= arriveeCode %>",
+        dateDepart: "<%= dateDepart %>",
+        dateArrivee: "<%= dateArrivee %>",
+        avionModele: "<%= avionModele %>",
+        avionCode: "<%= avionCode %>",
+        delaiReservation: <%= delaiReservation %>,
+        delaiAnnulation: <%= delaiAnnulation %>,
+        idVol: "<%= idVol %>",
+        promotions: [
+          <% for (int p = 0; p < tempsPromo.size(); p++) { 
+              Promotion promo = tempsPromo.get(p);
+              String classe = "";
+              if (promo.getIdClasse() == 1) {
+                  classe = "Économique";
+              } else if (promo.getIdClasse() == 2) {
+                  classe = "Affaires";
+              } else if (promo.getIdClasse() == 3) {
+                  classe = "Première";
+              }
+          %>
+            {
+              id: <%= promo.getId() %>,
+              pourcentage: <%= promo.getPourcentage() %>,
+              idClasse: "<%= classe %>",
+              nbSieges: <%= promo.getNbSieges() %>
+            }<%= (p < tempsPromo.size() - 1) ? "," : "" %>
+          <% } %>
+        ]
+      }<%= (i < vols.size() - 1) ? "," : "" %>
+      <% 
+          }
+        } 
+      %>
+      ];
+      afficherVolsEnCards(volsExemple);
+    </script>
   </body>
 </html>

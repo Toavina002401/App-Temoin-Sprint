@@ -57,6 +57,7 @@ CREATE TABLE Promotion(
    pourcentage NUMERIC(4,2)   NOT NULL,
    id_classe INTEGER NOT NULL,
    id_vol INTEGER NOT NULL,
+   nb_sieges INTEGER NOT NULL,
    PRIMARY KEY(id),
    FOREIGN KEY(id_classe) REFERENCES Classe(id) ON DELETE CASCADE,
    FOREIGN KEY(id_vol) REFERENCES Vol(id) ON DELETE CASCADE

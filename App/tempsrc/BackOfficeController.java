@@ -12,6 +12,7 @@ import controlleur.source.CustomeSession;
 import dossiers.Modules.Aeroport;
 import dossiers.Modules.Avion;
 import dossiers.Modules.Classe;
+import dossiers.Modules.Promotion;
 import dossiers.Modules.Vol;
 
 @AnnotationControlleur
@@ -133,4 +134,23 @@ public class BackOfficeController {
         System.out.println("suppression");
         return mv;
     }
+
+    @Post
+    @Url("/backOffice/promotions")
+    public ModelView createPromotion(@Param("idVolProm") String idVolProm,@Param("idClasse") String idClasse,@Param("nbSiege") String nbSiege,@Param("remise") String remise)throws Exception{
+        ModelView mv = new ModelView("/view/backoffice/promotion.jsp");
+        session.add("baseUrl", baseUrl);
+        Promotion prom = new Promotion();
+        prom.setIdClasse(Integer.parseInt(idClasse));
+        prom.setIdVol(Integer.parseInt(idVolProm));
+        prom.setNbSieges(Integer.parseInt(nbSiege));
+        prom.setPourcentage(Double.parseDouble(remise));
+        prom.save();
+        Vector<Vol> liste = Vol.getVolDispo();
+        mv.addObject("listeVols", liste);
+        Vector<Vector<Promotion>> lesPromos = Promotion.getPromo(liste);
+        mv.addObject("lesPromos", lesPromos);
+        return mv;
+    }
+
 }
