@@ -66,15 +66,28 @@ CREATE TABLE Promotion(
 CREATE TABLE Reservation(
    id SERIAL,
    date_reservation TIMESTAMP NOT NULL,
-   statut BOOLEAN NOT NULL,
-   prix_final NUMERIC(16,2)   NOT NULL,
-   clients VARCHAR(50)  NOT NULL,
-   id_classe INTEGER NOT NULL,
-   id_vol INTEGER NOT NULL,
+   clients VARCHAR(255)  NOT NULL,
+   id_vol INTEGER,
+   chemin_passport VARCHAR(255)  NOT NULL,
+   id_classe INTEGER,
    PRIMARY KEY(id),
    FOREIGN KEY(id_classe) REFERENCES Classe(id) ON DELETE CASCADE,
    FOREIGN KEY(id_vol) REFERENCES Vol(id) ON DELETE CASCADE
 );
+
+CREATE TABLE Fille_Reservation( 
+   id SERIAL,
+   id_reservation INTEGER,
+   personnel INTEGER NOT NULL,
+   nb_sieges INTEGER NOT NULL,
+   PRIMARY KEY(id),
+   FOREIGN KEY(id_reservation) REFERENCES Reservation(id) ON DELETE CASCADE
+);
+/*personnel 
+   si bebe = 10
+   si enfant = 100
+   si adulte = 1000
+*/
 
 CREATE TABLE Avion_Classe(
    id_avion INTEGER,

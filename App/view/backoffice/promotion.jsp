@@ -322,15 +322,41 @@
         const card = document.createElement("div");
         card.className = "vol-card";
 
+        // Étoile si au moins une promotion
+        const star = vol.promotions && vol.promotions.length > 0 
+          ? ' ⭐' 
+          : '';
+
+        // Liste des promotions
+        let promoHTML = "";
+        if (vol.promotions && vol.promotions.length > 0) {
+          promoHTML += '<div class="promo-list">';
+          vol.promotions.forEach(promo => {
+            promoHTML += 
+              '<div style="font-size: 9px; margin-bottom: 1px;">' +
+                '<strong>' + promo.idClasse + '</strong> : ' +
+                promo.pourcentage + '% (' + promo.nbSieges + ' sièges)' +
+              '</div>';
+          });
+          promoHTML += '</div>';
+        }
+
         card.innerHTML =
-        '<div class="vol-card-header">' +
-            vol.departVille + ' <span style="font-size: 8px;">(' + vol.departCode + ')</span> → ' + vol.arriveeVille + ' <span style="font-size: 8px;">(' + vol.arriveeCode + ')</span>' +
-        '</div>' +
-        '<div class="vol-card-body">' +
+          '<div class="vol-card-header">' +
+            vol.departVille + ' <span style="font-size: 8px;">(' + vol.departCode + ')</span> → ' +
+            vol.arriveeVille + ' <span style="font-size: 8px;">(' + vol.arriveeCode + ')</span>' +
+            ' <span style="font-size: 10px;float: inline-end;">' + star + '</span>' +
+          '</div>' +
+          '<div class="vol-card-body">' +
             '<div><strong>Départ :</strong> ' + vol.dateDepart + '</div>' +
             '<div><strong>Arrivée :</strong> ' + vol.dateArrivee + '</div>' +
             '<div><strong>Avion :</strong> ' + vol.avionModele + ' (' + vol.avionCode + ')</div>' +
-        '</div>';
+          '</div>' +
+          '<div class="vol-card-footer">' +
+            '<span><strong>Promotion :</strong></span>' +
+            promoHTML +
+          '</div>';
+
         container.appendChild(card);
       }
 
