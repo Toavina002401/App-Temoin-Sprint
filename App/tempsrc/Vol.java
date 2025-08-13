@@ -201,6 +201,7 @@ public class Vol {
                 try (ResultSet rs = stmt.getGeneratedKeys()) {
                     if (rs.next()) {
                         this.id = rs.getInt(1);
+                        Prix.save(this.id);
                     }
                 }
             }

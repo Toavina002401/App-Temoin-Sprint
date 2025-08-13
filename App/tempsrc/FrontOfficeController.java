@@ -1,8 +1,5 @@
 package dossiers.Controlleur;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Vector;
@@ -63,7 +60,6 @@ public class FrontOfficeController {
     @Url("/frontOffice/reserver")
     public ModelView reserver(@Param("idVolRes") String idVolRes,@Param("nomClient") String nomClient,@Param("prenomClient") String prenomClient,@Param("passport") Part passport
     ,@Param("ClassReservation") String ClassReservation,@Param("bebe") String bebe,@Param("enfant") String enfant,@Param("adulte") String adulte) throws Exception {
-        
         ModelView mv = new ModelView("/view/index.jsp");
         Vector<Aeroport> listeAeroport = Aeroport.getAll();
         Vector<Avion> listeAvion = Avion.getAll();

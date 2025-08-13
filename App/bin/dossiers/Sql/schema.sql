@@ -97,3 +97,13 @@ CREATE TABLE Avion_Classe(
    FOREIGN KEY(id_avion) REFERENCES Avion(id) ON DELETE CASCADE,
    FOREIGN KEY(id_classe) REFERENCES Classe(id) ON DELETE CASCADE
 );
+
+CREATE TABLE Prix(
+   id SERIAL,
+   id_vol INTEGER,
+   id_classe INTEGER,
+   montant NUMERIC(16,2)   NOT NULL,
+   PRIMARY KEY(id),
+   FOREIGN KEY(id_classe) REFERENCES Classe(id) ON DELETE CASCADE,
+   FOREIGN KEY(id_vol) REFERENCES Vol(id) ON DELETE CASCADE
+);

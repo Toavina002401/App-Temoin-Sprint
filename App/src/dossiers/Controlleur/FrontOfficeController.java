@@ -1,8 +1,5 @@
 package dossiers.Controlleur;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Vector;

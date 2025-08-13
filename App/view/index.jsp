@@ -346,7 +346,7 @@
                         <!-- Nom du client -->
                         <div class="col-12 col-md-6 mt-3">
                             <label for="nomClient" class="form-label">Info du client :</label>
-                            <input type="text" class="form-control" id="nomClient" name="nomClient" placeholder="Nom du client...">
+                            <input type="text" class="form-control" id="nomClient" name="nomClient" placeholder="Nom du client..." required>
                         </div>
                         <!-- Prénom du client -->
                         <div class="col-12 col-md-6 mt-3">
@@ -606,6 +606,7 @@
                     '<div><strong>Départ :</strong> ' + vol.dateDepart + '</div>' +
                     '<div><strong>Arrivée :</strong> ' + vol.dateArrivee + '</div>' +
                     '<div><strong>Avion :</strong> ' + vol.avionModele + ' (' + vol.avionCode + ')</div>' +
+                    '<div><strong>Montant :</strong></div>' +
                     '</div>' +
                     '<div class="vol-card-footer">' +
                     '<span><strong>Promotion: </strong></span>' +
