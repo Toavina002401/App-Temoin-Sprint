@@ -13,6 +13,7 @@ import controlleur.source.CustomeSession;
 import dossiers.Modules.Aeroport;
 import dossiers.Modules.Avion;
 import dossiers.Modules.Classe;
+import dossiers.Modules.DetailReservation;
 import dossiers.Modules.FilleReservation;
 import dossiers.Modules.Promotion;
 import dossiers.Modules.Reservation;
@@ -82,8 +83,11 @@ public class FrontOfficeController {
         res.setDate_reservation(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
         Vector<FilleReservation> fille = Reservation.getFille(bebe, enfant, adulte);
-        res.save(fille);
-        Reservation.sauvegarde(passport);
+        // Reservation detaile = res.save(fille);
+        // Reservation.sauvegarde(passport);
+        mv.addObject("confirmer", true);
+        // mv.addObject("detailReservation", DetailReservation.getDetail(detaile.getId()));
+        mv.addObject("detailReservation", DetailReservation.getDetail(1));
         return mv;
     }
 

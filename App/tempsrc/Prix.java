@@ -143,4 +143,31 @@ public class Prix {
         }
     }
 
+    public static Vector<Prix> getPrix(int idVol) {
+        Vector<Prix> prixVol = new Vector<>();
+        
+        String sql = "SELECT * FROM prix WHERE id_vol = ?";
+        
+        try (Connection conn = ConnexionPool.connecter();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, idVol);
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                Prix p = new Prix();
+                p.setId(rs.getInt("id"));
+                p.setId_vol(rs.getInt("id_vol"));
+                p.setId_classe(rs.getInt("id_classe"));
+                p.setMontant(rs.getDouble("montant"));
+                
+                prixVol.add(p);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return prixVol;
+    }
 }

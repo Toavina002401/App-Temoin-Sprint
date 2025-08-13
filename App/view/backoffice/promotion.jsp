@@ -397,6 +397,12 @@
               '<div><strong>Départ :</strong> ' + vol.dateDepart + '</div>' +
               '<div><strong>Arrivée :</strong> ' + vol.dateArrivee + '</div>' +
               '<div><strong>Avion :</strong> ' + vol.avionModele + ' (' + vol.avionCode + ')</div>' +
+              '<div><strong>Montant :</strong></div>' +
+              '<div style="font-size: 0.5rem;">'+
+                '<div><span>Économique :</span>'+vol.economie+' AR</div>' +
+                '<div><span>Affaires :</span>'+vol.affaire+' AR</div>' +
+                '<div><span>Première :</span>'+vol.premiere+' AR</div>' +
+              '</div>' +
             '</div>' +
             '<div class="vol-card-footer">' +
               '<span><strong>Ajouter une promotion </strong></span>' +
@@ -434,6 +440,9 @@
             String avionCode = vol.getAvion().getCode_avion();
             int delaiReservation = vol.getDelai_reservation_heures();
             int delaiAnnulation = vol.getDelai_annulation_heures();
+            double economie = vol.getEconomie();
+            double affaire = vol.getAffaire();
+            double premiere = vol.getPremiere();
       %>
       {
         departVille: "<%= departVille %>",
@@ -447,6 +456,9 @@
         delaiReservation: <%= delaiReservation %>,
         delaiAnnulation: <%= delaiAnnulation %>,
         idVol: "<%= idVol %>",
+        economie: "<%= economie %>",
+        affaire: "<%= affaire %>",
+        premiere: "<%= premiere %>",
         promotions: [
           <% for (int p = 0; p < tempsPromo.size(); p++) { 
               Promotion promo = tempsPromo.get(p);

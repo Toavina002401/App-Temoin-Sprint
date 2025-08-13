@@ -13,12 +13,17 @@
     String selectedDateArrive = (String) request.getAttribute("selectedDateArrive");
     Boolean search = false;
     Boolean dispo = false;
+    Boolean confirmer = false;
     if (request.getAttribute("search") != null) {
         search = (Boolean) request.getAttribute("search");
     }
 
     if (request.getAttribute("dispo") != null) {
         dispo = (Boolean) request.getAttribute("dispo");
+    }
+
+    if (request.getAttribute("confirmer") != null) {
+        confirmer = (Boolean) request.getAttribute("confirmer");
     }
 %>
 
@@ -64,20 +69,8 @@
             }
 
             .custom-modal,
-            .custom-modal-Reservation {
-                display: none; /* cachée par défaut */
-                position: fixed;
-                z-index: 9999;
-                left: 0;
-                top: 0;
-                width: 100vw;
-                height: 100vh;
-                overflow: auto;
-                background-color: rgba(0, 0, 0, 0.6); /* Fond noir semi-transparent */
-                justify-content: center;
-                align-items: center;
-            }
-
+            .custom-modal-Reservation,
+            .custom-modal-Confirmation,
             .custom-modal-FormReservation {
                 display: none; /* cachée par défaut */
                 position: fixed;
@@ -92,7 +85,8 @@
                 align-items: center;
             }
 
-            .custom-modal-content-FormReservation {
+            .custom-modal-content-FormReservation,
+            .custom-modal-content-Confirmation {
                 background-color: #fff;
                 margin: auto;
                 padding: 30px 50px;
@@ -117,7 +111,8 @@
             
             .custom-modal-close,
             .custom-modal-close-Reservation,
-            .custom-modal-close-FormReservation
+            .custom-modal-close-FormReservation,
+            .custom-modal-close-Confirmation
             {
                 position: absolute;
                 top: 10px;
@@ -409,6 +404,46 @@
             </div>
             <!-- Fin Modal -->
 
+            <!-- Modal de confirmation -->
+            <div id="customModal-Confirmation" class="custom-modal-Confirmation">
+                <div class="custom-modal-content-Confirmation">
+                    <span class="custom-modal-close-Confirmation" id="customModalClose-Confirmation">&times;</span>
+                    <h2>Réservation confirmée avec succès.</h2>
+                    <div id="infoDetaille-Confirmation" style="margin: 10px 0px;"></div>
+                    <h5>Plus de détail:</h5>
+                    <div class="col-12 col-md-12">
+                        <p>Date du réservation : <span id="dateReservationConfirmation"><span></p>
+                    </div>
+                    <div class="col-12 col-md-12">
+                        <p>Cher(e) client(e) : <span id="clientConfirmation"><span></p>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p>Classe réservée : <span id="cabine"><span></p>
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <p>Montant total (avec/sans promotion) : <span id="prixcabine"><span></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p id="bebeConfirmation" style="font-size: 0.9rem;"></p>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <p id="enfantConfirmation" style="font-size: 0.9rem;"></p>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <p id="adulteConfirmation" style="font-size: 0.9rem;"></p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-12">
+                        <p>Montant final de la réservation : <strong id="smtotalConfirmation"><strong></p>
+                    </div>
+                </div>
+            </div>
+            <!-- Fin Modal -->
+
+
             <!-- Support Company Start-->
             <div class="support-company-area support-padding fix">
                 <div class="container">
@@ -498,6 +533,12 @@
                     '<div><strong>Départ :</strong> ' + vol.dateDepart + '</div>' +
                     '<div><strong>Arrivée :</strong> ' + vol.dateArrivee + '</div>' +
                     '<div><strong>Avion :</strong> ' + vol.avionModele + ' (' + vol.avionCode + ')</div>' +
+                    '<div><strong>Montant :</strong></div>' +
+                    '<div style="font-size: 0.5rem;">'+
+                        '<div><span>Économique :</span>'+vol.economie+' AR</div>' +
+                        '<div><span>Affaires :</span>'+vol.affaire+' AR</div>' +
+                        '<div><span>Première :</span>'+vol.premiere+' AR</div>' +
+                    '</div>' +
                     '</div>' +
                     '<div class="vol-card-footer">' +
                     '<span><strong>Promotion: </strong></span>' +
@@ -527,11 +568,17 @@
                 document.getElementById("customModal-FormReservation").style.display = "none";
             };
 
+            // Fermer la modale du confirmation
+            document.getElementById("customModalClose-Confirmation").onclick = function () {
+                document.getElementById("customModal-Confirmation").style.display = "none";
+            };
+
             // Fermer si on clique en dehors
             window.onclick = function (event) {
                 const modal = document.getElementById("customModal");
                 const modalReservation = document.getElementById("customModal-Reservation");
                 const modalFormReservation = document.getElementById("customModal-FormReservation");
+                const modalConfirmation = document.getElementById("customModal-Confirmation");
                 if (event.target === modal) {
                     modal.style.display = "none";
                 }
@@ -540,6 +587,9 @@
                 }
                 if (event.target === modalFormReservation) {
                     modalFormReservation.style.display = "none";
+                }
+                if (event.target === modalConfirmation) {
+                    modalConfirmation.style.display = "none";
                 }
             };
 
@@ -607,6 +657,11 @@
                     '<div><strong>Arrivée :</strong> ' + vol.dateArrivee + '</div>' +
                     '<div><strong>Avion :</strong> ' + vol.avionModele + ' (' + vol.avionCode + ')</div>' +
                     '<div><strong>Montant :</strong></div>' +
+                    '<div style="font-size: 0.5rem;">'+
+                        '<div><span>Économique :</span>'+vol.economie+' AR</div>' +
+                        '<div><span>Affaires :</span>'+vol.affaire+' AR</div>' +
+                        '<div><span>Première :</span>'+vol.premiere+' AR</div>' +
+                    '</div>' +
                     '</div>' +
                     '<div class="vol-card-footer">' +
                     '<span><strong>Promotion: </strong></span>' +
@@ -631,6 +686,83 @@
                 });
             }
 
+            function afficheDetails(detailComplet){
+                const container = document.getElementById("infoDetaille-Confirmation");
+                container.innerHTML = "";
+                const card = document.createElement("div");
+                card.className = "vol-card";
+
+                // Étoile si au moins une promotion
+                const star = detailComplet.sespromotion && detailComplet.sespromotion.length > 0 
+                    ? ' ⭐' 
+                    : '';
+
+                // Liste des promotions
+                let promoHTML = "";
+                if (detailComplet.sespromotion && detailComplet.sespromotion.length > 0) {
+                    promoHTML += '<div class="promo-list">';
+                    detailComplet.sespromotion.forEach(promo => {
+                    promoHTML += 
+                        '<div style="font-size: 9px; margin-bottom: 1px;">' +
+                        '<strong>' + promo.id_classe + '</strong> : ' +
+                        promo.pourcentage + '% (' + promo.nb_sieges + ' sièges)' +
+                        '</div>';
+                    });
+                    promoHTML += '</div>';
+                }
+
+                card.innerHTML =
+                    '<div class="vol-card-header">' +
+                    detailComplet.vol.aeroport_depart.ville + ' <span style="font-size: 8px;">(' + detailComplet.vol.aeroport_depart.code_iata + ')</span> → ' +
+                    detailComplet.vol.aeroport_arrivee.ville + ' <span style="font-size: 8px;">(' + detailComplet.vol.aeroport_arrivee.code_iata + ')</span>' +
+                    ' <span style="font-size: 10px;float: inline-end;">' + star + '</span>' +
+                    '</div>' +
+                    '<div class="vol-card-body">' +
+                    '<div><strong>Départ :</strong> ' + detailComplet.vol.date_depart + '</div>' +
+                    '<div><strong>Arrivée :</strong> ' + detailComplet.vol.date_arrivee + '</div>' +
+                    '<div><strong>Avion :</strong> ' + detailComplet.vol.avion.modele + ' (' + detailComplet.vol.avion.code_avion + ')</div>' +
+                    '<div><strong>Montant :</strong></div>' +
+                    '<div style="font-size: 0.5rem;">'+
+                        '<div><span>Économique :</span>'+detailComplet.vol.economie+' AR</div>' +
+                        '<div><span>Affaires :</span>'+detailComplet.vol.affaire+' AR</div>' +
+                        '<div><span>Première :</span>'+detailComplet.vol.premiere+' AR</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="vol-card-footer">' +
+                    '<span><strong>Promotion: </strong></span>' +
+                    promoHTML +
+                    '</div>';
+                container.appendChild(card);
+
+                document.getElementById("dateReservationConfirmation").innerHTML = detailComplet.date_reservation;
+                document.getElementById("clientConfirmation").innerHTML = detailComplet.clients;
+                document.getElementById("cabine").innerHTML = detailComplet.id_classe;
+                document.getElementById("prixcabine").innerHTML = detailComplet.prixFinaleClasse + " AR";
+                document.getElementById("smtotalConfirmation").innerHTML = detailComplet.prixTotal + " AR";
+
+                const frs = detailComplet.filleReservation; 
+                const prixPerso = detailComplet.prixFinalPersonnel;
+
+                function getPhrase(personnelCode) {
+                    const fr = frs.find(f => f.personnel === personnelCode);
+                    if (!fr) return ''; // pas de données
+                    const nbSieges = fr.nb_sieges;
+                    if (nbSieges === 0) return ''; // ignorer si 0
+                    const prix = prixPerso[personnelCode.toString()] || 0; // <- clé convertie en string
+                    let label = '';
+                    switch(personnelCode) {
+                        case 10: label = 'Bébé'; break;
+                        case 100: label = 'Enfant'; break;
+                        case 1000: label = 'Adulte'; break;
+                    }
+                    return label + " (" + nbSieges + " siège" + (nbSieges > 1 ? "s" : "") + ") : " + prix.toLocaleString() + " AR";
+                }
+
+                document.getElementById("bebeConfirmation").innerHTML = getPhrase(10);
+                document.getElementById("enfantConfirmation").innerHTML = getPhrase(100);
+                document.getElementById("adulteConfirmation").innerHTML = getPhrase(1000);
+            }
+
             if (<%= dispo %>){
                 const volsExemple = [
                 <% 
@@ -651,6 +783,9 @@
                             String avionCode = vol.getAvion().getCode_avion();
                             int delaiReservation = vol.getDelai_reservation_heures();
                             int delaiAnnulation = vol.getDelai_annulation_heures();
+                            double economie = vol.getEconomie();
+                            double affaire = vol.getAffaire();
+                            double premiere = vol.getPremiere();
                 %>
                 {
                     departVille: "<%= departVille %>",
@@ -664,6 +799,9 @@
                     delaiReservation: <%= delaiReservation %>,
                     delaiAnnulation: <%= delaiAnnulation %>,
                     idVol: "<%= idVol %>",
+                    economie: "<%= economie %>",
+                    affaire: "<%= affaire %>",
+                    premiere: "<%= premiere %>",
                     promotions: [
                     <% for (int p = 0; p < tempsPromo.size(); p++) { 
                         Promotion promo = tempsPromo.get(p);
@@ -731,6 +869,109 @@
             ];
                 afficherVolsEnCards(volsExemple);
                 document.getElementById("customModal").style.display = "flex";
+            }
+
+            if (<%= confirmer %>){
+                const detailComplet = [
+                <% 
+                    DetailReservation details = (DetailReservation) request.getAttribute("detailReservation");
+                    if (details != null) {
+                        Vol volDetail = details.getVol();
+                        String cls = "";
+                        if (details.getId_classe() == 1) {
+                            cls = "Économique";
+                        } else if (details.getId_classe() == 2) {
+                            cls = "Affaires";
+                        } else if (details.getId_classe() == 3) {
+                            cls = "Première";
+                        }
+                %>
+                {
+                    date_reservation: "<%= details.getDate_reservation() %>",
+                    clients: "<%= details.getClients() %>",
+                    chemin_passport: "<%= details.getChemin_passport() %>",
+                    id_classe: "<%= cls %>",
+                    
+                    vol: {
+                        id: <%= volDetail.getId() %>,
+                        date_depart: "<%= volDetail.getDate_depart() %>",
+                        date_arrivee: "<%= volDetail.getDate_arrivee() %>",
+                        delai_reservation_heures: <%= volDetail.getDelai_reservation_heures() %>,
+                        delai_annulation_heures: <%= volDetail.getDelai_annulation_heures() %>,
+                        aeroport_depart: {
+                            id: <%= volDetail.getAeroport_depart().getId() %>,
+                            ville: "<%= volDetail.getAeroport_depart().getVille() %>",
+                            code_iata: "<%= volDetail.getAeroport_depart().getCode_iata() %>"
+                        },
+                        aeroport_arrivee: {
+                            id: <%= volDetail.getAeroport_arrivee().getId() %>,
+                            ville: "<%= volDetail.getAeroport_arrivee().getVille() %>",
+                            code_iata: "<%= volDetail.getAeroport_arrivee().getCode_iata() %>"
+                        },
+                        avion: {
+                            id: <%= volDetail.getAvion().getId() %>,
+                            modele: "<%= volDetail.getAvion().getModele() %>",
+                            code_avion: "<%= volDetail.getAvion().getCode_avion() %>"
+                        },
+                        economie:<%= volDetail.getEconomie() %>,
+                        affaire:<%= volDetail.getAffaire() %>,
+                        premiere:<%= volDetail.getPremiere() %>
+                    },
+
+                    filleReservation: [
+                        <% 
+                        Vector<FilleReservation> frs = details.getFilleReservation();
+                        for (int i = 0; i < frs.size(); i++) {
+                            FilleReservation fr = frs.get(i);
+                        %>
+                        {
+                            personnel: <%= fr.getPersonnel() %>,
+                            nb_sieges: <%= fr.getNb_sieges() %>
+                        }<%= (i < frs.size() - 1) ? "," : "" %>
+                        <% } %>
+                    ],
+
+                    sespromotion: [
+                        <% 
+                        Vector<Promotion> promos = details.getSespromotion();
+                        for (int i = 0; i < promos.size(); i++) {
+                            Promotion p = promos.get(i);
+                            String classe = "";
+                            if (p.getIdClasse() == 1) {
+                                classe = "Économique";
+                            } else if (p.getIdClasse() == 2) {
+                                classe = "Affaires";
+                            } else if (p.getIdClasse() == 3) {
+                                classe = "Première";
+                            }
+                        %>
+                        {
+                            id: <%= p.getId() %>,
+                            pourcentage: <%= p.getPourcentage() %>,
+                            id_classe: "<%= classe %>",
+                            id_vol: <%= p.getIdVol() %>,
+                            nb_sieges: <%= p.getNbSieges() %>
+                        }<%= (i < promos.size() - 1) ? "," : "" %>
+                        <% } %>
+                    ],
+
+                    prixFinaleClasse: <%= details.getPrixFinaleClasse() %>,
+                    prixFinalPersonnel: {
+                        <% 
+                        Map<Integer, Double> prixMap = details.getPrixFinalPersonnel();
+                        int count = 0;
+                        for (Map.Entry<Integer, Double> entry : prixMap.entrySet()) {
+                        %>
+                        <%= entry.getKey() %>: <%= entry.getValue() %><%= (++count < prixMap.size()) ? "," : "" %>
+                        <% } %>
+                    },
+                    prixTotal: <%= details.getPrixTotal() %>
+                }
+                <% } %>
+                ];
+                console.log(detailComplet[0]);
+                afficheDetails(detailComplet[0]);
+                document.getElementById("customModal-Confirmation").style.display = "flex";
             }
         </script>
 

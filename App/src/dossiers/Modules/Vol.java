@@ -44,9 +44,35 @@ public class Vol {
     private Aeroport aeroport_arrivee;
     private Aeroport aeroport_depart;
     private Avion avion;
+    private double economie;
+    private double affaire;
+    private double premiere;
 
-    
     public Vol() {
+    }
+
+    public double getAffaire() {
+        return affaire;
+    }
+
+    public void setAffaire(double affaire) {
+        this.affaire = affaire;
+    }
+
+    public double getPremiere() {
+        return premiere;
+    }
+
+    public void setPremiere(double premiere) {
+        this.premiere = premiere;
+    }
+
+    public double getEconomie() {
+        return economie;
+    }
+
+    public void setEconomie(double economie) {
+        this.economie = economie;
     }
 
     public int getId() {
@@ -298,6 +324,18 @@ public class Vol {
                     vol.aeroport_arrivee = Aeroport.getById(vol.id_aeroport_arrivee);
                     vol.aeroport_depart = Aeroport.getById(vol.id_aeroport_depart);
                     vol.avion = Avion.getById(vol.id_avion);
+                    Vector<Prix> lesprix = Prix.getPrix(vol.getId());
+                    for (int i = 0; i < lesprix.size(); i++) {
+                        if (lesprix.elementAt(i).getId_classe() == 1) {
+                            vol.setEconomie(lesprix.elementAt(i).getMontant());
+                        }
+                        if (lesprix.elementAt(i).getId_classe() == 2) {
+                            vol.setAffaire(lesprix.elementAt(i).getMontant());
+                        }
+                        if (lesprix.elementAt(i).getId_classe() == 3) {
+                            vol.setPremiere(lesprix.elementAt(i).getMontant());
+                        }
+                    }
                 } else {
                     throw new Exception("Aucun vol trouvé avec l'ID : " + idVol);
                 }
@@ -490,6 +528,19 @@ public class Vol {
                 avion.setModele(rsl.getString("modele"));
                 avion.setCode_avion(rsl.getString("code_avion"));
                 vol.setAvion(avion);
+
+                Vector<Prix> lesprix = Prix.getPrix(vol.getId());
+                for (int i = 0; i < lesprix.size(); i++) {
+                    if (lesprix.elementAt(i).getId_classe() == 1) {
+                        vol.setEconomie(lesprix.elementAt(i).getMontant());
+                    }
+                    if (lesprix.elementAt(i).getId_classe() == 2) {
+                        vol.setAffaire(lesprix.elementAt(i).getMontant());
+                    }
+                    if (lesprix.elementAt(i).getId_classe() == 3) {
+                        vol.setPremiere(lesprix.elementAt(i).getMontant());
+                    }
+                }
 
                 valiny.add(vol);
             }
