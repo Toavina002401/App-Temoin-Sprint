@@ -44,7 +44,7 @@ public class FrontOfficeController {
         Vector<Aeroport> listeAeroport = Aeroport.getAll();
         Vector<Avion> listeAvion = Avion.getAll();
         Vector<Classe> listeClasse = Classe.getAll();
-        Vector<Vol> liste = Vol.getVolDispo();
+        Vector<Vol> liste = Vol.getVolDispoReservation();
         Vector<Vector<Promotion>> lesPromos = Promotion.getPromo(liste);
         session.add("baseUrl", baseUrl);
         mv.addObject("listeAeroport", listeAeroport);
@@ -65,7 +65,7 @@ public class FrontOfficeController {
         Vector<Aeroport> listeAeroport = Aeroport.getAll();
         Vector<Avion> listeAvion = Avion.getAll();
         Vector<Classe> listeClasse = Classe.getAll();
-        Vector<Vol> liste = Vol.getVolDispo();
+        Vector<Vol> liste = Vol.getVolDispoReservation();
         Vector<Vector<Promotion>> lesPromos = Promotion.getPromo(liste);
         session.add("baseUrl", baseUrl);
         mv.addObject("listeAeroport", listeAeroport);
@@ -83,11 +83,10 @@ public class FrontOfficeController {
         res.setDate_reservation(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
         Vector<FilleReservation> fille = Reservation.getFille(bebe, enfant, adulte);
-        // Reservation detaile = res.save(fille);
-        // Reservation.sauvegarde(passport);
+        Reservation detaile = res.save(fille);
+        Reservation.sauvegarde(passport);
         mv.addObject("confirmer", true);
-        // mv.addObject("detailReservation", DetailReservation.getDetail(detaile.getId()));
-        mv.addObject("detailReservation", DetailReservation.getDetail(1));
+        mv.addObject("detailReservation", DetailReservation.getDetail(detaile.getId()));
         return mv;
     }
 

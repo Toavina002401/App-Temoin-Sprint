@@ -551,6 +551,79 @@ public class Vol {
         return valiny;
     }
 
+    public static Vector<Vol> getVolDispoReservation() throws Exception {
+        Vector<Vol> valiny = new Vector<>();
+        
+        String query = """
+            SELECT v.id, v.date_depart, v.date_arrivee, v.delai_reservation_heures, v.delai_annulation_heures,
+                ad.id AS aeroport_depart_id, ad.code_iata AS aeroport_depart_code, ad.ville AS aeroport_depart_ville, ad.pays AS aeroport_depart_pays,
+                aa.id AS aeroport_arrivee_id, aa.code_iata AS aeroport_arrivee_code, aa.ville AS aeroport_arrivee_ville, aa.pays AS aeroport_arrivee_pays,
+                av.id AS avion_id, av.date_fabrication, av.modele, av.code_avion
+            FROM Vol v
+            JOIN Aeroport ad ON v.aeroport_depart_id = ad.id
+            JOIN Aeroport aa ON v.aeroport_arrivee_id = aa.id
+            JOIN Avion av ON v.id_avion = av.id
+            WHERE CURRENT_TIMESTAMP BETWEEN 
+                (v.date_depart - (v.delai_reservation_heures * INTERVAL '1 hour'))
+                AND v.date_depart
+            ORDER BY v.date_depart ASC
+        """;
+
+
+        try (Connection conn = ConnexionPool.connecter();
+            Statement stm = conn.createStatement();
+            ResultSet rsl = stm.executeQuery(query)) {
+
+            while (rsl.next()) {
+                Vol vol = new Vol();
+                vol.setId(rsl.getInt("id"));
+                vol.setDate_depart(rsl.getString("date_depart"));
+                vol.setDate_arrivee(rsl.getString("date_arrivee"));
+                vol.setDelai_reservation_heures(rsl.getInt("delai_reservation_heures"));
+                vol.setDelai_annulation_heures(rsl.getInt("delai_annulation_heures"));
+
+                Aeroport aeroportDepart = new Aeroport();
+                aeroportDepart.setId(rsl.getInt("aeroport_depart_id"));
+                aeroportDepart.setCode_iata(rsl.getString("aeroport_depart_code"));
+                aeroportDepart.setVille(rsl.getString("aeroport_depart_ville"));
+                aeroportDepart.setPays(rsl.getString("aeroport_depart_pays"));
+                vol.setAeroport_depart(aeroportDepart);
+
+                Aeroport aeroportArrivee = new Aeroport();
+                aeroportArrivee.setId(rsl.getInt("aeroport_arrivee_id"));
+                aeroportArrivee.setCode_iata(rsl.getString("aeroport_arrivee_code"));
+                aeroportArrivee.setVille(rsl.getString("aeroport_arrivee_ville"));
+                aeroportArrivee.setPays(rsl.getString("aeroport_arrivee_pays"));
+                vol.setAeroport_arrivee(aeroportArrivee);
+
+                Avion avion = new Avion();
+                avion.setId(rsl.getInt("avion_id"));
+                avion.setDate_fabrication(rsl.getString("date_fabrication"));
+                avion.setModele(rsl.getString("modele"));
+                avion.setCode_avion(rsl.getString("code_avion"));
+                vol.setAvion(avion);
+
+                Vector<Prix> lesprix = Prix.getPrix(vol.getId());
+                for (int i = 0; i < lesprix.size(); i++) {
+                    if (lesprix.elementAt(i).getId_classe() == 1) {
+                        vol.setEconomie(lesprix.elementAt(i).getMontant());
+                    }
+                    if (lesprix.elementAt(i).getId_classe() == 2) {
+                        vol.setAffaire(lesprix.elementAt(i).getMontant());
+                    }
+                    if (lesprix.elementAt(i).getId_classe() == 3) {
+                        vol.setPremiere(lesprix.elementAt(i).getMontant());
+                    }
+                }
+
+                valiny.add(vol);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return valiny;
+    }
 
     public int getId_aeroport_arrivee() {
         return id_aeroport_arrivee;

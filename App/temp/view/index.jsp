@@ -745,18 +745,15 @@
 
                 function getPhrase(personnelCode) {
                     const fr = frs.find(f => f.personnel === personnelCode);
-                    if (!fr) return ''; // pas de données
-                    const nbSieges = fr.nb_sieges;
-                    if (nbSieges === 0) return ''; // ignorer si 0
-                    const prix = prixPerso[personnelCode.toString()] || 0; // <- clé convertie en string
-                    let label = '';
-                    switch(personnelCode) {
-                        case 10: label = 'Bébé'; break;
-                        case 100: label = 'Enfant'; break;
-                        case 1000: label = 'Adulte'; break;
-                    }
+                    const labels = { 10: "Bébé", 100: "Enfant", 1000: "Adulte" };
+                    
+                    const nbSieges = fr ? fr.nb_sieges : 0;
+                    const prix = prixPerso[personnelCode.toString()] || 0;
+                    const label = labels[personnelCode] || "";
+                    
                     return label + " (" + nbSieges + " siège" + (nbSieges > 1 ? "s" : "") + ") : " + prix.toLocaleString() + " AR";
                 }
+
 
                 document.getElementById("bebeConfirmation").innerHTML = getPhrase(10);
                 document.getElementById("enfantConfirmation").innerHTML = getPhrase(100);
@@ -969,7 +966,6 @@
                 }
                 <% } %>
                 ];
-                console.log(detailComplet[0]);
                 afficheDetails(detailComplet[0]);
                 document.getElementById("customModal-Confirmation").style.display = "flex";
             }
