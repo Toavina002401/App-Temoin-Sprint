@@ -44,9 +44,35 @@ public class Vol {
     private Aeroport aeroport_arrivee;
     private Aeroport aeroport_depart;
     private Avion avion;
+    private double economie;
+    private double affaire;
+    private double premiere;
 
-    
     public Vol() {
+    }
+
+    public double getAffaire() {
+        return affaire;
+    }
+
+    public void setAffaire(double affaire) {
+        this.affaire = affaire;
+    }
+
+    public double getPremiere() {
+        return premiere;
+    }
+
+    public void setPremiere(double premiere) {
+        this.premiere = premiere;
+    }
+
+    public double getEconomie() {
+        return economie;
+    }
+
+    public void setEconomie(double economie) {
+        this.economie = economie;
     }
 
     public int getId() {
@@ -143,32 +169,70 @@ public class Vol {
         Vector<Vol> valiny = new Vector<>();
         try (
             Connection conn = ConnexionPool.connecter();
-            PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO Vol (date_depart, date_arrivee, delai_reservation_heures, delai_annulation_heures, aeroport_arrivee_id, aeroport_depart_id, id_avion) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                Statement.RETURN_GENERATED_KEYS
-            )
         ) {
             String departFormate = this.date_depart.replace("T", " ") + ":00";
             String arriveeFormate = this.date_arrivee.replace("T", " ") + ":00";
-            stmt.setTimestamp(1, Timestamp.valueOf(departFormate));
-            stmt.setTimestamp(2, Timestamp.valueOf(arriveeFormate));
-            stmt.setInt(3, this.delai_reservation_heures);
-            stmt.setInt(4, this.delai_annulation_heures);
-            stmt.setInt(5, this.id_aeroport_arrivee);
-            stmt.setInt(6, this.id_aeroport_depart);
-            stmt.setInt(7, this.id_avion);
 
-            stmt.executeUpdate();
+            // Vérification de doublon avec récupération du vol existant
+            String checkSql = "SELECT * FROM Vol WHERE date_depart = ? AND date_arrivee = ? " +
+                            "AND delai_reservation_heures = ? AND delai_annulation_heures = ? " +
+                            "AND aeroport_arrivee_id = ? AND aeroport_depart_id = ? AND id_avion = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setTimestamp(1, Timestamp.valueOf(departFormate));
+                checkStmt.setTimestamp(2, Timestamp.valueOf(arriveeFormate));
+                checkStmt.setInt(3, this.delai_reservation_heures);
+                checkStmt.setInt(4, this.delai_annulation_heures);
+                checkStmt.setInt(5, this.id_aeroport_arrivee);
+                checkStmt.setInt(6, this.id_aeroport_depart);
+                checkStmt.setInt(7, this.id_avion);
 
-            // Récupération de l'ID généré
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                ResultSet rs = checkStmt.executeQuery();
                 if (rs.next()) {
-                    this.id = rs.getInt(1);
+                    // Remplir l'objet Vol existant
+                    Vol volExistant = new Vol();
+                    volExistant.id = rs.getInt("id");
+                    volExistant.date_depart = rs.getTimestamp("date_depart").toString();
+                    volExistant.date_arrivee = rs.getTimestamp("date_arrivee").toString();
+                    volExistant.delai_reservation_heures = rs.getInt("delai_reservation_heures");
+                    volExistant.delai_annulation_heures = rs.getInt("delai_annulation_heures");
+                    volExistant.id_aeroport_arrivee = rs.getInt("aeroport_arrivee_id");
+                    volExistant.id_aeroport_depart = rs.getInt("aeroport_depart_id");
+                    volExistant.id_avion = rs.getInt("id_avion");
+
+                    // Charger les objets liés
+                    volExistant.aeroport_arrivee = Aeroport.getById(volExistant.id_aeroport_arrivee);
+                    volExistant.aeroport_depart = Aeroport.getById(volExistant.id_aeroport_depart);
+                    volExistant.avion = Avion.getById(volExistant.id_avion);
+
+                    valiny.add(volExistant);
+                    return valiny; // retourner directement le vol existant
                 }
             }
 
-            // Récupération des objets liés
+            // Si aucun doublon, insérer
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "INSERT INTO Vol (date_depart, date_arrivee, delai_reservation_heures, delai_annulation_heures, aeroport_arrivee_id, aeroport_depart_id, id_avion) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+
+                stmt.setTimestamp(1, Timestamp.valueOf(departFormate));
+                stmt.setTimestamp(2, Timestamp.valueOf(arriveeFormate));
+                stmt.setInt(3, this.delai_reservation_heures);
+                stmt.setInt(4, this.delai_annulation_heures);
+                stmt.setInt(5, this.id_aeroport_arrivee);
+                stmt.setInt(6, this.id_aeroport_depart);
+                stmt.setInt(7, this.id_avion);
+
+                stmt.executeUpdate();
+
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        this.id = rs.getInt(1);
+                        Prix.save(this.id);
+                    }
+                }
+            }
+
+            // Charger les objets liés
             this.aeroport_arrivee = Aeroport.getById(this.id_aeroport_arrivee);
             this.aeroport_depart = Aeroport.getById(this.id_aeroport_depart);
             this.avion = Avion.getById(this.id_avion);
@@ -181,6 +245,7 @@ public class Vol {
 
         return valiny;
     }
+
 
     public Vector<Vol> update(int id) throws Exception {
         Vector<Vol> valiny = new Vector<>();
@@ -259,6 +324,18 @@ public class Vol {
                     vol.aeroport_arrivee = Aeroport.getById(vol.id_aeroport_arrivee);
                     vol.aeroport_depart = Aeroport.getById(vol.id_aeroport_depart);
                     vol.avion = Avion.getById(vol.id_avion);
+                    Vector<Prix> lesprix = Prix.getPrix(vol.getId());
+                    for (int i = 0; i < lesprix.size(); i++) {
+                        if (lesprix.elementAt(i).getId_classe() == 1) {
+                            vol.setEconomie(lesprix.elementAt(i).getMontant());
+                        }
+                        if (lesprix.elementAt(i).getId_classe() == 2) {
+                            vol.setAffaire(lesprix.elementAt(i).getMontant());
+                        }
+                        if (lesprix.elementAt(i).getId_classe() == 3) {
+                            vol.setPremiere(lesprix.elementAt(i).getMontant());
+                        }
+                    }
                 } else {
                     throw new Exception("Aucun vol trouvé avec l'ID : " + idVol);
                 }
@@ -401,6 +478,151 @@ public class Vol {
         }
 
         return vols;
+    }
+
+    public static Vector<Vol> getVolDispo() throws Exception {
+        Vector<Vol> valiny = new Vector<>();
+        
+        String query = """
+            SELECT v.id, v.date_depart, v.date_arrivee, v.delai_reservation_heures, v.delai_annulation_heures,
+                ad.id AS aeroport_depart_id, ad.code_iata AS aeroport_depart_code, ad.ville AS aeroport_depart_ville, ad.pays AS aeroport_depart_pays,
+                aa.id AS aeroport_arrivee_id, aa.code_iata AS aeroport_arrivee_code, aa.ville AS aeroport_arrivee_ville, aa.pays AS aeroport_arrivee_pays,
+                av.id AS avion_id, av.date_fabrication, av.modele, av.code_avion
+            FROM Vol v
+            JOIN Aeroport ad ON v.aeroport_depart_id = ad.id
+            JOIN Aeroport aa ON v.aeroport_arrivee_id = aa.id
+            JOIN Avion av ON v.id_avion = av.id
+            WHERE v.date_depart > CURRENT_TIMESTAMP
+            ORDER BY v.date_depart ASC
+        """;
+
+        try (Connection conn = ConnexionPool.connecter();
+            Statement stm = conn.createStatement();
+            ResultSet rsl = stm.executeQuery(query)) {
+
+            while (rsl.next()) {
+                Vol vol = new Vol();
+                vol.setId(rsl.getInt("id"));
+                vol.setDate_depart(rsl.getString("date_depart"));
+                vol.setDate_arrivee(rsl.getString("date_arrivee"));
+                vol.setDelai_reservation_heures(rsl.getInt("delai_reservation_heures"));
+                vol.setDelai_annulation_heures(rsl.getInt("delai_annulation_heures"));
+
+                Aeroport aeroportDepart = new Aeroport();
+                aeroportDepart.setId(rsl.getInt("aeroport_depart_id"));
+                aeroportDepart.setCode_iata(rsl.getString("aeroport_depart_code"));
+                aeroportDepart.setVille(rsl.getString("aeroport_depart_ville"));
+                aeroportDepart.setPays(rsl.getString("aeroport_depart_pays"));
+                vol.setAeroport_depart(aeroportDepart);
+
+                Aeroport aeroportArrivee = new Aeroport();
+                aeroportArrivee.setId(rsl.getInt("aeroport_arrivee_id"));
+                aeroportArrivee.setCode_iata(rsl.getString("aeroport_arrivee_code"));
+                aeroportArrivee.setVille(rsl.getString("aeroport_arrivee_ville"));
+                aeroportArrivee.setPays(rsl.getString("aeroport_arrivee_pays"));
+                vol.setAeroport_arrivee(aeroportArrivee);
+
+                Avion avion = new Avion();
+                avion.setId(rsl.getInt("avion_id"));
+                avion.setDate_fabrication(rsl.getString("date_fabrication"));
+                avion.setModele(rsl.getString("modele"));
+                avion.setCode_avion(rsl.getString("code_avion"));
+                vol.setAvion(avion);
+
+                Vector<Prix> lesprix = Prix.getPrix(vol.getId());
+                for (int i = 0; i < lesprix.size(); i++) {
+                    if (lesprix.elementAt(i).getId_classe() == 1) {
+                        vol.setEconomie(lesprix.elementAt(i).getMontant());
+                    }
+                    if (lesprix.elementAt(i).getId_classe() == 2) {
+                        vol.setAffaire(lesprix.elementAt(i).getMontant());
+                    }
+                    if (lesprix.elementAt(i).getId_classe() == 3) {
+                        vol.setPremiere(lesprix.elementAt(i).getMontant());
+                    }
+                }
+
+                valiny.add(vol);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return valiny;
+    }
+
+    public static Vector<Vol> getVolDispoReservation() throws Exception {
+        Vector<Vol> valiny = new Vector<>();
+        
+        String query = """
+            SELECT v.id, v.date_depart, v.date_arrivee, v.delai_reservation_heures, v.delai_annulation_heures,
+                ad.id AS aeroport_depart_id, ad.code_iata AS aeroport_depart_code, ad.ville AS aeroport_depart_ville, ad.pays AS aeroport_depart_pays,
+                aa.id AS aeroport_arrivee_id, aa.code_iata AS aeroport_arrivee_code, aa.ville AS aeroport_arrivee_ville, aa.pays AS aeroport_arrivee_pays,
+                av.id AS avion_id, av.date_fabrication, av.modele, av.code_avion
+            FROM Vol v
+            JOIN Aeroport ad ON v.aeroport_depart_id = ad.id
+            JOIN Aeroport aa ON v.aeroport_arrivee_id = aa.id
+            JOIN Avion av ON v.id_avion = av.id
+            WHERE CURRENT_TIMESTAMP BETWEEN 
+                (v.date_depart - (v.delai_reservation_heures * INTERVAL '1 hour'))
+                AND v.date_depart
+            ORDER BY v.date_depart ASC
+        """;
+
+
+        try (Connection conn = ConnexionPool.connecter();
+            Statement stm = conn.createStatement();
+            ResultSet rsl = stm.executeQuery(query)) {
+
+            while (rsl.next()) {
+                Vol vol = new Vol();
+                vol.setId(rsl.getInt("id"));
+                vol.setDate_depart(rsl.getString("date_depart"));
+                vol.setDate_arrivee(rsl.getString("date_arrivee"));
+                vol.setDelai_reservation_heures(rsl.getInt("delai_reservation_heures"));
+                vol.setDelai_annulation_heures(rsl.getInt("delai_annulation_heures"));
+
+                Aeroport aeroportDepart = new Aeroport();
+                aeroportDepart.setId(rsl.getInt("aeroport_depart_id"));
+                aeroportDepart.setCode_iata(rsl.getString("aeroport_depart_code"));
+                aeroportDepart.setVille(rsl.getString("aeroport_depart_ville"));
+                aeroportDepart.setPays(rsl.getString("aeroport_depart_pays"));
+                vol.setAeroport_depart(aeroportDepart);
+
+                Aeroport aeroportArrivee = new Aeroport();
+                aeroportArrivee.setId(rsl.getInt("aeroport_arrivee_id"));
+                aeroportArrivee.setCode_iata(rsl.getString("aeroport_arrivee_code"));
+                aeroportArrivee.setVille(rsl.getString("aeroport_arrivee_ville"));
+                aeroportArrivee.setPays(rsl.getString("aeroport_arrivee_pays"));
+                vol.setAeroport_arrivee(aeroportArrivee);
+
+                Avion avion = new Avion();
+                avion.setId(rsl.getInt("avion_id"));
+                avion.setDate_fabrication(rsl.getString("date_fabrication"));
+                avion.setModele(rsl.getString("modele"));
+                avion.setCode_avion(rsl.getString("code_avion"));
+                vol.setAvion(avion);
+
+                Vector<Prix> lesprix = Prix.getPrix(vol.getId());
+                for (int i = 0; i < lesprix.size(); i++) {
+                    if (lesprix.elementAt(i).getId_classe() == 1) {
+                        vol.setEconomie(lesprix.elementAt(i).getMontant());
+                    }
+                    if (lesprix.elementAt(i).getId_classe() == 2) {
+                        vol.setAffaire(lesprix.elementAt(i).getMontant());
+                    }
+                    if (lesprix.elementAt(i).getId_classe() == 3) {
+                        vol.setPremiere(lesprix.elementAt(i).getMontant());
+                    }
+                }
+
+                valiny.add(vol);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return valiny;
     }
 
     public int getId_aeroport_arrivee() {

@@ -1,9 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.*,dossiers.Modules.*,java.lang.Boolean" %>
 <%
     String baseUrl = (String) request.getSession().getAttribute("baseUrl");
     Boolean authentifier = (Boolean) request.getSession().getAttribute("authUser");
     if (authentifier == null || !authentifier) {
-        response.sendRedirect(request.getContextPath() + "/backOffice"); 
+      response.sendRedirect(request.getContextPath() + "/backOffice"); 
     }
 %>
 <!DOCTYPE html>
@@ -24,19 +25,11 @@
     </style>
   </head>
   <body>
-    <div
-      class="flex h-screen bg-gray-50 dark:bg-gray-900"
-      :class="{ 'overflow-hidden': isSideMenuOpen }"
-    >
+    <div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }">
       <!-- Desktop sidebar -->
-      <aside
-        class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0"
-      >
+      <aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
         <div class="py-4 text-gray-500 dark:text-gray-400">
-          <a
-            class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200"
-            href="<%= baseUrl %>/backOffice/home"
-          >
+          <a class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="<%= baseUrl %>/backOffice/home">
             Go Trip
           </a>
           <ul class="mt-6">
@@ -171,18 +164,93 @@
 
       <div class="flex flex-col flex-1 w-full">
         <header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
-          <div
-            class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300"
-          >
+          <div class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300">
           </div>
         </header>
         <main class="h-full overflow-y-auto">
           <div class="container px-6 mx-auto grid">
-            <h2
-              class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200"
-            >
-                Réservation
-            </h2>
+            <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">Réservation</h2>
+            <div class="container grid px-6 mx-auto">
+              <!-- With avatar -->
+              <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">Liste complète des réservations effectuées via GoTrip</h4>
+              <div class="w-full mb-8 overflow-hidden rounded-lg shadow-xs">
+                <div class="w-full overflow-x-auto">
+                  <table class="w-full whitespace-no-wrap">
+                    <thead>
+                      <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+                        <th class="px-4 py-3">Passport / Client</th>
+                        <th class="px-4 py-3">Vol</th>
+                        <th class="px-4 py-3">Classe</th>
+                        <th class="px-4 py-3">Siège</th>
+                        <th class="px-4 py-3">Prix total</th>
+                        <th class="px-4 py-3">Date heure reservation</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+                    <% 
+                      Vector<DetailReservation> lesDetails = (Vector<DetailReservation>) request.getAttribute("lesDetails");
+                      for(int i=0; i< lesDetails.size();i++) {
+                      String passport = baseUrl +Reservation.getRecuperation() + lesDetails.elementAt(i).getChemin_passport();
+                      Vol vl = lesDetails.elementAt(i).getVol();
+                      String volLieu = vl.getAeroport_depart().getVille() + " ("+vl.getAeroport_depart().getCode_iata()+") -> "+ vl.getAeroport_arrivee().getVille() +" ("+vl.getAeroport_arrivee().getCode_iata()+")";
+                      String volAvion = vl.getAvion().getModele()+" "+vl.getAvion().getCode_avion();
+                      String classeDet = "";
+                      if (lesDetails.elementAt(i).getId_classe() == 1) {
+                        classeDet = "Économique";
+                      } else if (lesDetails.elementAt(i).getId_classe() == 2) {
+                        classeDet = "Affaires";
+                      } else if (lesDetails.elementAt(i).getId_classe() == 3) {
+                        classeDet = "Première";
+                      }
+                      String bebe = lesDetails.elementAt(i).getPhrase(10);
+                      String enfant = lesDetails.elementAt(i).getPhrase(100);
+                      String adulte = lesDetails.elementAt(i).getPhrase(1000);
+                    %>
+                      <tr class="text-gray-700 dark:text-gray-400">
+                        <td class="px-4 py-3">
+                          <div class="flex items-center text-sm">
+                            <!-- Avatar with inset shadow -->
+                            <div class="relative hidden w-8 h-8 mr-3 rounded-full md:block">
+                              <img class="object-cover w-full h-full rounded-full"
+                                src="<%= passport %>"
+                                alt="passport"
+                                loading="lazy"
+                              />
+                              <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
+                            </div>
+                            <div>
+                              <p class="font-semibold" style="font-size: .68rem !important;"><%= lesDetails.elementAt(i).getClients() %></p>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            <div>
+                              <p class="font-semibold" style="font-weight: 500 !important;"><%= volLieu %></p>
+                              <p class="text-xs text-gray-600 dark:text-gray-400"><%= volAvion %></p>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-sm"><%= classeDet %></td>
+                        <td class="px-4 py-3 text-sm">
+                            <div>
+                              <p class="text-xs text-gray-600 dark:text-gray-400" style="font-size: .68rem !important;"><%= bebe %></p>
+                              <p class="text-xs text-gray-600 dark:text-gray-400" style="font-size: .68rem !important;"><%= enfant %></p>
+                              <p class="text-xs text-gray-600 dark:text-gray-400" style="font-size: .68rem !important;"><%= adulte %></p>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-sm"><%= lesDetails.elementAt(i).getPrixTotal() %> AR</td>
+                        <td class="px-4 py-3 text-sm"><%= lesDetails.elementAt(i).getDate_reservation() %></td>
+                      </tr>
+                    <% } %>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
+                  <span class="flex items-center col-span-3" style="color: #1A1C23 !important;">
+                    ...
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </main>
       </div>

@@ -12,6 +12,8 @@ import controlleur.source.CustomeSession;
 import dossiers.Modules.Aeroport;
 import dossiers.Modules.Avion;
 import dossiers.Modules.Classe;
+import dossiers.Modules.DetailReservation;
+import dossiers.Modules.Promotion;
 import dossiers.Modules.Utilisateur;
 import dossiers.Modules.Vol;
 
@@ -25,6 +27,7 @@ public class AdminController {
     public ModelView login() {
         ModelView mv = new ModelView("/view/backoffice/index.jsp");
         session.add("baseUrl", baseUrl);
+        System.out.println("Redirection Backoffice");
         return mv;
     }
 
@@ -65,17 +68,23 @@ public class AdminController {
 
     @Get
     @Url("/backOffice/promotion")
-    public ModelView promotion() {
+    public ModelView promotion() throws Exception{
         ModelView mv = new ModelView("/view/backoffice/promotion.jsp");
         session.add("baseUrl", baseUrl);
+        Vector<Vol> liste = Vol.getVolDispo();
+        Vector<Vector<Promotion>> lesPromos = Promotion.getPromo(liste);
+        mv.addObject("lesPromos", lesPromos);
+        mv.addObject("listeVols", liste);
         return mv;
     }
 
     @Get
     @Url("/backOffice/reservation")
-    public ModelView reservation() {
+    public ModelView reservation() throws Exception {
         ModelView mv = new ModelView("/view/backoffice/reservation.jsp");
         session.add("baseUrl", baseUrl);
+        Vector<DetailReservation> lesDetails = DetailReservation.getAll();
+        mv.addObject("lesDetails", lesDetails);
         return mv;
     }
 
