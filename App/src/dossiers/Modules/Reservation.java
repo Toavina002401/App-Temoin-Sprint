@@ -14,7 +14,8 @@ import dossiers.Connection.ConnexionPool;
 import jakarta.servlet.http.Part;
 
 public class Reservation {
-    public static String destination = "D:\\Boss\\ITU\\Session4\\Web Dynamic\\App-Temoin-Sprint\\Passeport\\"; 
+    public static String destination = "D:\\Boss\\ITU\\Session4\\Web Dynamic\\App-Temoin-Sprint\\App\\assets"; 
+    public static String recuperation = "\\assets\\Passeport\\";
 
     public static void sauvegarde(Part passport){
         String nomFichier = passport.getSubmittedFileName();
@@ -39,6 +40,13 @@ public class Reservation {
     private int id_classe;
     private String chemin_passport;
 
+
+    public static String getRecuperation() {
+        return recuperation;
+    }
+    public static void setRecuperation(String recuperation) {
+        Reservation.recuperation = recuperation;
+    }
 
     public static String getDestination() {
         return destination;

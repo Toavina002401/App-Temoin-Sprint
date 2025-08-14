@@ -193,6 +193,60 @@ public class DetailReservation {
         return valiny;
     }
 
+    public static Vector<DetailReservation> getAll() throws Exception {
+        Vector<DetailReservation> valiny = new Vector<>();
 
+        try (Connection con = ConnexionPool.connecter()) {
+            String sql = "SELECT id FROM Reservation";
+            try (PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
+                while (rs.next()) {
+                    int idReservation = rs.getInt("id");
+                    DetailReservation detail = getDetail(idReservation);
+                    valiny.add(detail);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return valiny;
+    }
+
+    public String getPhrase(int personnelCode) {
+        // Chercher l'objet FilleReservation correspondant au code personnel
+        FilleReservation fr = null;
+        if (filleReservation != null) {
+            for (FilleReservation f : filleReservation) {
+                if (f.getPersonnel() == personnelCode) {
+                    fr = f;
+                    break;
+                }
+            }
+        }
+
+        // Nombre de sièges
+        int nbSieges = fr != null ? fr.getNb_sieges() : 0;
+
+        // Prix pour ce personnel
+        double prix = prixFinalPersonnel != null && prixFinalPersonnel.containsKey(personnelCode)
+                    ? prixFinalPersonnel.get(personnelCode)
+                    : 0;
+
+        // Label correspondant
+        String label = "";
+        switch (personnelCode) {
+            case 10: label = "Bébé"; break;
+            case 100: label = "Enfant"; break;
+            case 1000: label = "Adulte"; break;
+        }
+
+        // Retourner la phrase formatée
+        return String.format("%s (%d siège%s) : %,.0f AR",
+                            label,
+                            nbSieges,
+                            nbSieges > 1 ? "s" : "",
+                            prix);
+    }
 }

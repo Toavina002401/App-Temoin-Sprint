@@ -12,6 +12,7 @@ import controlleur.source.CustomeSession;
 import dossiers.Modules.Aeroport;
 import dossiers.Modules.Avion;
 import dossiers.Modules.Classe;
+import dossiers.Modules.DetailReservation;
 import dossiers.Modules.Promotion;
 import dossiers.Modules.Utilisateur;
 import dossiers.Modules.Vol;
@@ -79,9 +80,11 @@ public class AdminController {
 
     @Get
     @Url("/backOffice/reservation")
-    public ModelView reservation() {
+    public ModelView reservation() throws Exception {
         ModelView mv = new ModelView("/view/backoffice/reservation.jsp");
         session.add("baseUrl", baseUrl);
+        Vector<DetailReservation> lesDetails = DetailReservation.getAll();
+        mv.addObject("lesDetails", lesDetails);
         return mv;
     }
 

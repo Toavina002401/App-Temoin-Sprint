@@ -551,7 +551,6 @@ public class Vol {
         return valiny;
     }
 
-
     public static Vector<Vol> getVolDispoReservation() throws Exception {
         Vector<Vol> valiny = new Vector<>();
         
