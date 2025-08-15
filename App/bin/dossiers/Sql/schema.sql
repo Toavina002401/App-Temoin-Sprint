@@ -107,3 +107,10 @@ CREATE TABLE Prix(
    FOREIGN KEY(id_classe) REFERENCES Classe(id) ON DELETE CASCADE,
    FOREIGN KEY(id_vol) REFERENCES Vol(id) ON DELETE CASCADE
 );
+
+CREATE TABLE ConfigPersonnel(
+   id SERIAL,
+   personnel VARCHAR(255)  NOT NULL,
+   code_personnel INTEGER,
+   remise NUMERIC(5,2)   NOT NULL
+);
