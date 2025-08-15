@@ -1,11 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
+<html :class="{ 'theme-dark': dark }" x-data="data()" lang="en" class="theme-dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/backOffice/public/assets/img/favicon.ico}">
+    <title>Spring Boot - Go Trip </title>
+    <link rel="stylesheet" th:href="@{/backOffice/public/assets/css/tailwind.output.css}" />
+    <script th:src="@{/backOffice/public/assets/js/init-alpine.js}"></script>
+    <style>
+      #styleDeconnexion{
+        position: fixed;
+        top: 95vh;
+        left: 1vw;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }">
+      <!-- Desktop sidebar -->
+      <aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
+        <div class="py-4 text-gray-500 dark:text-gray-400">
+          <a class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" th:href="@{/home}">
+            Spring Boot - Go Trip
+          </a>
+          <ul class="mt-6">
+            <li class="relative px-6 py-3">
+              <span class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+              <a class="inline-flex items-center w-full text-sm font-semibold text-gray-800 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-100" th:href="@{/home}">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    role="img" aria-labelledby="titleConfig"
+                >
+                    <title id="titleConfig">Configuration</title>
+                    <!-- Gear / cog -->
+                    <path d="M12 3l1 .4a2 2 0 0 0 2 0l1-.4 1.2 2.1-1 .8a2 2 0 0 0 0 2l1 .8L18 11l-1.1.2a2 2 0 0 0-1.4 1.4L15.2 14 17 16.1 15 18l-2.1-1.8-1 .3a2 2 0 0 0-1.4 1.4L9.2 20H7l-.4-1a2 2 0 0 0-2 0L3 20 1.8 17.9l1-.8a2 2 0 0 0 0-2l-1-.8L3 12l1.1-.2a2 2 0 0 0 1.4-1.4L5.8 10 4 7.9 6 6l2.1 1.8 1-.3a2 2 0 0 0 1.4-1.4L11 4h2z"/>
+                    <!-- Center circle -->
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span class="ml-4">Configuration Personnel</span>
+              </a>
+            </li>
+          </ul>
+          <div id="styleDeconnexion">
+            <a class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200" th:href="@{/}">
+              <svg
+                class="w-4 h-4 mr-3"
+                aria-hidden="true"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                ></path>
+              </svg>
+              <span>Deconnexion</span>
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <div class="flex flex-col flex-1 w-full">
+        <header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
+          <div class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300">
+          </div>
+        </header>
+        <main class="h-full overflow-y-auto">
+          <div class="container px-6 mx-auto grid">
+            <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+                Configuration Personnel             
+            </h2>
+            <div class="flex space-x-6">
+                <div class="flex-1 px-6 py-4 bg-gray-100 dark:bg-gray-800 rounded">
+                    <h4 class="font-semibold text-gray-700 dark:text-gray-200">Information sur un Bébé </h4>
+                    <p style="font-size: 0.8rem;color: #ffffff45;">Age : - 2 ans</p>
+                    <form th:action="@{/update-remise}" method="post" style="margin: 14px 0px;">
+                        <input type="hidden" name="code" value="10">
+                        <label class="block text-sm">
+                            <span class="text-gray-700 dark:text-gray-400">Fraction à régler (%)</span>
+                            <input class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input" type="text" name="remise" th:value="${configs.?[codePersonnel == 10]?.get(0)?.remise}"/>
+                        </label>
+                        <button style="margin-top: 8px;" class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple" type="submit">
+                            Changer
+                        </button>
+                    </form>
+                </div>
+                <div class="flex-1 px-6 py-4 bg-gray-100 dark:bg-gray-800 rounded">
+                    <h4 class="font-semibold text-gray-700 dark:text-gray-200">Information sur une Enfant</h4>
+                    <p style="font-size: 0.8rem;color: #ffffff45;">Age : 2 à 16 ans </p>
+                    <form th:action="@{/update-remise}" method="post" style="margin: 14px 0px;">
+                        <input type="hidden" name="code" value="100">
+                        <label class="block text-sm">
+                            <span class="text-gray-700 dark:text-gray-400">Fraction à régler (%)</span>
+                            <input class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input" type="text" name="remise" th:value="${configs.?[codePersonnel == 100]?.get(0)?.remise}"/>
+                        </label>
+                        <button style="margin-top: 8px;" class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple" type="submit">
+                            Changer
+                        </button>
+                    </form>
+                </div>
+                <div class="flex-1 px-6 py-4 bg-gray-100 dark:bg-gray-800 rounded">
+                    <h4 class="font-semibold text-gray-700 dark:text-gray-200">Information sur une Adulte</h4>
+                    <p style="font-size: 0.8rem;color: #ffffff45;">Age : + 16 ans</p>
+                    <form th:action="@{/update-remise}" method="post" style="margin: 14px 0px;">
+                        <input type="hidden" name="code" value="1000">
+                        <label class="block text-sm">
+                            <span class="text-gray-700 dark:text-gray-400">Fraction à régler (%)</span>
+                            <input class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input" type="text" name="remise" th:value="${configs.?[codePersonnel == 1000]?.get(0)?.remise}"/>
+                        </label>
+                        <button style="margin-top: 8px;" class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple" type="submit">
+                            Changer
+                        </button>
+                    </form>
+                </div>
+            </div>   
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
 </html>

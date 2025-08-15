@@ -1,5 +1,7 @@
 package com.example.Configuration.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.Configuration.module.ConfigPersonnel;
+import com.example.Configuration.service.ConfigPersonnelService;
 import com.example.Configuration.service.UtilisateurService;
 
 @Controller
@@ -15,6 +19,9 @@ public class AdminController {
 
     @Autowired
     private UtilisateurService utilisateurService;
+
+    @Autowired
+    private ConfigPersonnelService service;
     
     @RequestMapping("/")
     public String index() {
@@ -40,7 +47,15 @@ public class AdminController {
     }
 
     @GetMapping("/home")
-    public String home() {
-        return "home"; // page d’accueil après login
+    public String home(Model model) {
+        List<ConfigPersonnel> configs = service.getAllConfig(); 
+        model.addAttribute("configs", configs);
+        return "home";
+    }
+
+    @PostMapping("/update-remise")
+    public String updateRemise(@RequestParam int code, @RequestParam double remise,Model model) throws Exception {
+        service.updateRemiseByCode(code, remise);
+        return "redirect:/home";
     }
 }

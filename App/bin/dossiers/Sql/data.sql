@@ -134,3 +134,10 @@ INSERT INTO Vol (date_depart, date_arrivee, delai_reservation_heures, delai_annu
 ('2023-10-15 22:00:00', '2023-10-16 00:00:00', 12, 3, 10, 8, 5);
 
 /******************** Fin Données du table Vol  ***************************/
+
+/******************** Données du configuration Personnel  ***************************/
+INSERT INTO ConfigPersonnel (personnel,code_personnel,remise) VALUES
+('Bébé',10,10),
+('Enfant',100,40),
+('Adulte',1000,100);
+/******************** Fin Données du configuration Personnel  ***************************/
